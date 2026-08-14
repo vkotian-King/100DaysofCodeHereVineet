@@ -2,11 +2,13 @@ import { getVaultHandle, setVaultHandle } from '../lib/vaultStorage.js';
 import { listTopicFolders, ensureTopicFolder, fileExists, writeMarkdownFile } from '../lib/fsOps.js';
 import { buildMarkdown } from '../lib/transcriptFormatter.js';
 import { sanitizeFilename } from '../lib/filenameSanitizer.js';
+import { refreshPublishPanel } from './publishPanel.js';
 
 const vaultStatusEl = document.getElementById('vaultStatus');
 const selectVaultBtn = document.getElementById('selectVaultBtn');
 const regrantBtn = document.getElementById('regrantBtn');
 const captureSection = document.getElementById('captureSection');
+const publishSection = document.getElementById('publishSection');
 const captureBtn = document.getElementById('captureBtn');
 const captureStatusEl = document.getElementById('captureStatus');
 const previewArea = document.getElementById('previewArea');
@@ -43,6 +45,7 @@ async function refreshVaultUi() {
     selectVaultBtn.hidden = false;
     regrantBtn.hidden = true;
     captureSection.hidden = true;
+    publishSection.hidden = true;
     return;
   }
 
@@ -52,12 +55,15 @@ async function refreshVaultUi() {
     selectVaultBtn.hidden = true;
     regrantBtn.hidden = true;
     captureSection.hidden = false;
+    publishSection.hidden = false;
     await refreshTopicList();
+    await refreshPublishPanel(vaultRootHandle);
   } else {
     vaultStatusEl.textContent = `Vault "${vaultRootHandle.name}" needs access to be re-confirmed.`;
     selectVaultBtn.hidden = true;
     regrantBtn.hidden = false;
     captureSection.hidden = true;
+    publishSection.hidden = true;
   }
 }
 
@@ -177,6 +183,7 @@ saveBtn.addEventListener('click', async () => {
     previewArea.hidden = true;
     lastCapture = null;
     await refreshTopicList();
+    await refreshPublishPanel(vaultRootHandle);
   } catch (_err) {
     showToast('Could not save the file.', true);
   }

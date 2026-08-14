@@ -1,32 +1,64 @@
 // Dev-only utility: renders the real notes in a vault folder into a local HTML
-// preview using lib/siteGenerator.js + lib/vaultNoteParser.js, without touching
-// GitHub. Lets us evaluate output quality before wiring up real publishing.
+// preview using lib/siteGenerator.js's buildSiteFiles() — the same orchestration
+// function the real Publish feature uses — without touching GitHub. Lets us
+// evaluate output quality (and catch regressions) before/without publishing.
 //
 // Usage: node scripts/generate-preview-site.js <vaultDir> <outputDir>
+//
+// Optional: a "pinned-topics.json" file at the root of <vaultDir> containing a
+// JSON array of topic (folder) names, e.g. ["MCP updated", "Context Engineering"].
+// Those topics are pinned to the top of the index page, in the order listed.
 
 import fs from 'node:fs';
 import path from 'node:path';
 
 import { parseVaultNote, hasUserContent } from '../lib/vaultNoteParser.js';
-import { slugifyForUrl, buildStylesheet, buildNotePage, buildTopicPage, buildIndexPage } from '../lib/siteGenerator.js';
+import { buildSiteFiles, DEFAULT_TOOL_URL } from '../lib/siteGenerator.js';
 
-const TOOL_URL = 'https://github.com/vkotian-King/100DaysofCodeHereVineet';
+const PINNED_TOPICS_FILENAME = 'pinned-topics.json';
 
 function readVault(vaultDir) {
-  const topics = [];
+  const topicsRaw = {};
   for (const entry of fs.readdirSync(vaultDir, { withFileTypes: true })) {
     if (!entry.isDirectory()) continue;
     const topicDir = path.join(vaultDir, entry.name);
     const notes = [];
     for (const file of fs.readdirSync(topicDir)) {
       if (!file.endsWith('.md')) continue;
-      const raw = fs.readFileSync(path.join(topicDir, file), 'utf8');
-      const parsed = parseVaultNote(raw);
-      notes.push({ parsed, filename: file });
+      const content = fs.readFileSync(path.join(topicDir, file), 'utf8');
+      notes.push({ filename: file, content });
     }
-    topics.push({ topicFolderName: entry.name, notes });
+    topicsRaw[entry.name] = notes;
   }
-  return topics;
+  return topicsRaw;
+}
+
+function readPinnedTopics(vaultDir) {
+  const pinnedPath = path.join(vaultDir, PINNED_TOPICS_FILENAME);
+  if (!fs.existsSync(pinnedPath)) return [];
+  try {
+    const parsed = JSON.parse(fs.readFileSync(pinnedPath, 'utf8'));
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (_err) {
+    console.error(`[generate-preview-site] could not parse ${PINNED_TOPICS_FILENAME}, ignoring it`);
+    return [];
+  }
+}
+
+function buildValueReport(topicsRaw) {
+  const report = { publishable: [], draftsExcludedFromValueCheck: [] };
+  for (const [topicName, notes] of Object.entries(topicsRaw)) {
+    for (const { filename, content } of notes) {
+      const parsed = parseVaultNote(content);
+      const record = { topic: topicName, filename };
+      if (hasUserContent(parsed)) {
+        report.publishable.push(record);
+      } else {
+        report.draftsExcludedFromValueCheck.push(record);
+      }
+    }
+  }
+  return report;
 }
 
 function main() {
@@ -36,62 +68,29 @@ function main() {
     process.exit(1);
   }
 
-  const topics = readVault(vaultDir);
+  const topicsRaw = readVault(vaultDir);
+  const pinnedTopics = readPinnedTopics(vaultDir);
+  const topicCount = Object.keys(topicsRaw).length;
+  const noteCount = Object.values(topicsRaw).reduce((n, notes) => n + notes.length, 0);
+
+  const files = buildSiteFiles(topicsRaw, {
+    toolUrl: DEFAULT_TOOL_URL,
+    siteTitle: 'My learning journal',
+    pinnedTopics,
+  });
 
   fs.mkdirSync(outputDir, { recursive: true });
-  fs.writeFileSync(path.join(outputDir, 'style.css'), buildStylesheet());
-
-  const report = { publishable: [], draftsExcludedFromValueCheck: [] };
-  const indexEntries = [];
-
-  for (const topic of topics) {
-    const topicSlug = slugifyForUrl(topic.topicFolderName);
-    const topicDir = path.join(outputDir, topicSlug);
-    fs.mkdirSync(topicDir, { recursive: true });
-
-    const noteLinks = [];
-    for (const { parsed, filename } of topic.notes) {
-      const noteSlug = slugifyForUrl(parsed.title);
-      const noteHref = `${topicSlug}/${noteSlug}.html`;
-      const videoUrl = parsed.source || `https://www.youtube.com/watch?v=${parsed.videoId}`;
-
-      const html = buildNotePage(parsed, {
-        toolUrl: TOOL_URL,
-        indexHref: '../index.html',
-        styleHref: '../style.css',
-        videoUrl,
-      });
-      fs.writeFileSync(path.join(topicDir, `${noteSlug}.html`), html);
-
-      const record = { topic: topic.topicFolderName, filename, title: parsed.title, href: noteHref };
-      if (hasUserContent(parsed)) {
-        report.publishable.push(record);
-      } else {
-        report.draftsExcludedFromValueCheck.push(record);
-      }
-
-      noteLinks.push({ title: parsed.title, channel: parsed.channel, sections: parsed.sections, href: `${noteSlug}.html` });
-    }
-
-    const topicHtml = buildTopicPage(topic.topicFolderName, noteLinks, {
-      toolUrl: TOOL_URL,
-      indexHref: '../index.html',
-      styleHref: '../style.css',
-    });
-    fs.writeFileSync(path.join(topicDir, 'index.html'), topicHtml);
-
-    indexEntries.push({ name: topic.topicFolderName, href: `${topicSlug}/index.html`, count: topic.notes.length });
+  for (const file of files) {
+    const outPath = path.join(outputDir, file.path);
+    fs.mkdirSync(path.dirname(outPath), { recursive: true });
+    fs.writeFileSync(outPath, file.content);
   }
 
-  const indexHtml = buildIndexPage(indexEntries, {
-    toolUrl: TOOL_URL,
-    styleHref: 'style.css',
-    siteTitle: 'My learning journal',
-  });
-  fs.writeFileSync(path.join(outputDir, 'index.html'), indexHtml);
+  const report = buildValueReport(topicsRaw);
 
   console.log(`Generated preview site at: ${outputDir}`);
-  console.log(`Topics: ${topics.length}, notes total: ${topics.reduce((n, t) => n + t.notes.length, 0)}`);
+  console.log(`Topics: ${topicCount}, notes total: ${noteCount}`);
+  if (pinnedTopics.length > 0) console.log(`Pinned topics: ${pinnedTopics.join(', ')}`);
   console.log(`\nNotes with at least one filled-in section (Summary/Key Insights/Tools/Skills): ${report.publishable.length}`);
   report.publishable.forEach((r) => console.log(`  [has content] ${r.topic}/${r.filename}`));
   console.log(`\nNotes with ALL FOUR sections still empty (transcript-only, currently low standalone value): ${report.draftsExcludedFromValueCheck.length}`);

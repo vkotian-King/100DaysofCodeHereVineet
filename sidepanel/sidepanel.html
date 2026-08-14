@@ -30,6 +30,36 @@
     </div>
   </section>
 
+  <section id="publishSection" hidden>
+    <button id="togglePublishBtn" type="button" class="section-toggle">Publish &#9662;</button>
+
+    <div id="publishBody" hidden>
+      <h2>Topics</h2>
+      <p class="hint">Pinned topics appear first on your published site, in this order.</p>
+      <ul id="topicPinList" class="pin-list"></ul>
+
+      <h2>GitHub repo</h2>
+      <p class="hint">Create an empty public repo and enable GitHub Pages for it once, manually, in GitHub's settings. Then fill in the details below.</p>
+
+      <label for="repoOwnerInput">Owner</label>
+      <input id="repoOwnerInput" type="text" placeholder="your-github-username" autocomplete="off" />
+
+      <label for="repoNameInput">Repository name</label>
+      <input id="repoNameInput" type="text" placeholder="my-learning-journal" autocomplete="off" />
+
+      <label for="patInput">Personal Access Token</label>
+      <input id="patInput" type="password" placeholder="Fine-grained PAT, scoped to this repo" autocomplete="off" />
+      <p class="hint">Create one at <code>github.com/settings/personal-access-tokens</code>, scoped to only this repository, with <strong>Contents: Read and write</strong>.</p>
+
+      <button id="testConnectionBtn" type="button">Test Connection</button>
+      <div id="connectionStatus"></div>
+
+      <button id="publishBtn" type="button">Publish</button>
+      <div id="publishProgress"></div>
+      <div id="publishResult"></div>
+    </div>
+  </section>
+
   <div id="toast" hidden></div>
 
   <script type="module" src="sidepanel.js"></script>

@@ -67,6 +67,26 @@ Chrome's File System Access API requires re-confirming folder permission after a
 
 Go to `chrome://extensions/shortcuts` to customize or reassign `Ctrl+Shift+Y`.
 
+## Publishing your vault as a website
+
+Expanding **Publish** in the side panel turns your vault into a small static site (an index page, one page per topic, one page per note — including chapters/description/transcript) and pushes it straight to a GitHub repo you control, hosted for free on GitHub Pages. No AI, no server we run — the extension talks directly to GitHub's API using a token you create.
+
+**One-time setup, done manually in GitHub's own UI (not from the extension):**
+1. Create a new, empty **public** repository on GitHub.
+2. In that repo's **Settings → Pages**, set the source to the `main` branch, root folder, and save.
+3. Go to **github.com/settings/personal-access-tokens** and create a **fine-grained** token scoped to **only this repository**, with **Contents: Read and write** permission (nothing broader). Fine-grained tokens require an expiration date — pick whatever you're comfortable with, and you'll need to regenerate it once it expires.
+
+**In the side panel:**
+1. Expand **Publish**. The topic list here is also where you **pin** topics — click **Pin** on any topic to float it to the top of your published site's homepage, and use the ↑/↓ buttons to reorder multiple pinned topics. This is saved to a `pinned-topics.json` file at your vault's root.
+2. Fill in the repo **Owner** (your GitHub username or org) and **Repository name**, and paste your **Personal Access Token**.
+3. Click **Test Connection** to confirm the token works before publishing.
+4. Click **Publish**. Progress is shown per file; when it finishes you'll get your site's URL (`https://<owner>.github.io/<repo>/`), which can take a minute to resolve the very first time.
+
+**Known limitations of this feature:**
+- If you rename or delete a note locally, its old page on GitHub isn't automatically deleted — re-publishing updates/adds pages but doesn't clean up orphaned ones yet.
+- Every note is published, whether or not you've added any Summary/Key Insights of your own — a transcript-only note is still just a transcript on the public page. Nothing currently gates low-value pages out of a publish; that's on you to curate for now (fill in a note, or don't publish that topic).
+- Rate limits and auth failures stop the whole run rather than skipping past them, so a bad token or a GitHub rate limit means retrying after fixing the underlying issue, not a partial publish.
+
 ## Limitations
 
 - **YouTube only.** Other video platforms are not supported in this version.
