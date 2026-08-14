@@ -26,6 +26,59 @@
     return el ? el.textContent.trim() : '';
   }
 
+  function getDescriptionText() {
+    const container = document.querySelector('#description-inline-expander, ytd-text-inline-expander#description-inline-expander');
+    if (!container) return '';
+
+    const expandBtn = container.querySelector('tp-yt-paper-button#expand') ||
+      Array.from(container.querySelectorAll('tp-yt-paper-button, button'))
+        .find((b) => /more/i.test((b.textContent || '').trim()));
+    if (expandBtn) {
+      try { expandBtn.click(); } catch (_err) { /* ignore, fall back to whatever text is visible */ }
+    }
+
+    // Reading the whole container picks up sibling widgets bundled into the same
+    // module (an "Ask" panel, a duplicate chapters list, a transcript entry point,
+    // the channel info card) — #expanded (or #snippet before expansion) is scoped
+    // to just the creator's own text.
+    const textEl = container.querySelector('#expanded') || container.querySelector('#snippet');
+    const rawText = (textEl ? textEl.innerText : container.innerText) || '';
+
+    // That element still carries YouTube's own trailing metadata (auto-dub
+    // attribution, product tags) appended after the real description — strip
+    // trailing lines matching that known "Key: value" shape.
+    const trailingMetadataRe = /^(Speaker|Products Mentioned):\s/;
+    const lines = rawText.trim().split('\n');
+    while (lines.length > 0) {
+      const last = lines[lines.length - 1].trim();
+      if (last === '' || trailingMetadataRe.test(last)) {
+        lines.pop();
+      } else {
+        break;
+      }
+    }
+
+    return lines.join('\n').trim();
+  }
+
+  function parseChaptersFromDescription(descriptionText) {
+    if (!descriptionText) return [];
+    const chapterLineRe = /^(\d{1,2}(?::\d{2}){1,2})\s+(.+)$/;
+    const chapters = [];
+
+    for (const line of descriptionText.split('\n')) {
+      const match = line.trim().match(chapterLineRe);
+      if (match) {
+        // Creators write chapter titles either as "0:00 Title" or "0:00 - Title" —
+        // strip a leading "- " separator so it doesn't end up baked into the title.
+        const title = match[2].trim().replace(/^-\s*/, '');
+        chapters.push({ startSeconds: parseTimestampToSeconds(match[1]), title });
+      }
+    }
+
+    return chapters;
+  }
+
   function isVideoUnavailable() {
     if (document.querySelector('ytd-player-error-message-renderer')) return true;
     const bodyText = (document.body.innerText || '').slice(0, 2000);
@@ -152,6 +205,8 @@
     const title = getTitle();
     const channel = getChannel();
     const url = `https://www.youtube.com/watch?v=${videoId}`;
+    const description = getDescriptionText();
+    const chapters = parseChaptersFromDescription(description);
 
     const btn = findShowTranscriptButton();
     if (!btn) {
@@ -205,6 +260,8 @@
       url,
       captureDate: new Date().toISOString(),
       cues,
+      description,
+      chapters,
     };
   } catch (err) {
     console.error('[TranscriptVault] unexpected error:', err);

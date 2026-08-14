@@ -135,11 +135,14 @@ captureBtn.addEventListener('click', async () => {
       url: result.url,
       captureDate: result.captureDate,
       cues,
+      description: result.description || '',
+      chapters: result.chapters || [],
     };
 
     captureStatusEl.textContent = '';
     previewTitleEl.textContent = lastCapture.title;
-    previewMetaEl.textContent = `${lastCapture.channel} — ${cues.length} caption lines`;
+    const chapterNote = lastCapture.chapters.length > 0 ? `, ${lastCapture.chapters.length} chapters` : '';
+    previewMetaEl.textContent = `${lastCapture.channel} — ${cues.length} caption lines${chapterNote}`;
     previewArea.hidden = false;
     topicInput.value = '';
     topicInput.focus();

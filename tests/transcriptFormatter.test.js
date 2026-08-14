@@ -12,7 +12,7 @@ test('formatTimestamp: boundary values', () => {
   assert.equal(formatTimestamp(3661), '1:01:01');
 });
 
-test('buildMarkdown: front matter fields and fixed heading order', () => {
+test('buildMarkdown: front matter fields and transcript-only body', () => {
   const cues = [
     { startSeconds: 0, text: 'Welcome back to the channel' },
     { startSeconds: 4, text: "Today we're covering prompt engineering" },
@@ -36,13 +36,13 @@ test('buildMarkdown: front matter fields and fixed heading order', () => {
   assert.match(md, /video_id: abc123/);
   assert.match(md, /topic: AI\/Prompt-Engineering/);
 
-  const headingOrder = ['## Summary', '## Key Insights', '## Tools / Frameworks Mentioned', '## Skills', '## Transcript'];
-  let lastIndex = -1;
-  for (const heading of headingOrder) {
-    const idx = md.indexOf(heading);
-    assert.ok(idx > lastIndex, `${heading} should appear after the previous heading`);
-    lastIndex = idx;
-  }
+  // No Summary/Key Insights/Tools/Skills placeholders — the capture stays a plain
+  // transcript; any elaboration is added later, separately, when actually wanted.
+  assert.ok(!md.includes('## Summary'));
+  assert.ok(!md.includes('## Key Insights'));
+  assert.ok(!md.includes('## Tools / Frameworks Mentioned'));
+  assert.ok(!md.includes('## Skills'));
+  assert.match(md, /## Transcript/);
 
   assert.match(md, /- \[00:00\]\(https:\/\/www\.youtube\.com\/watch\?v=abc123&t=0s\) Welcome back to the channel/);
   assert.match(md, /- \[01:05\]\(https:\/\/www\.youtube\.com\/watch\?v=abc123&t=65s\) and a bit of tooling\./);
@@ -60,4 +60,54 @@ test('buildMarkdown: handles empty cues list without crashing', () => {
   });
 
   assert.match(md, /## Transcript\n\n$/);
+});
+
+test('buildMarkdown: omits Chapters/Description sections when absent', () => {
+  const md = buildMarkdown({
+    title: 'No extras',
+    channel: 'Channel',
+    url: 'https://www.youtube.com/watch?v=xyz',
+    videoId: 'xyz',
+    captureDate: '2026-08-14T00:00:00.000Z',
+    topic: 'Misc',
+    cues: [],
+  });
+
+  assert.ok(!md.includes('## Chapters'));
+  assert.ok(!md.includes('## Description'));
+});
+
+test('buildMarkdown: includes a Chapters section with timestamp links, before Transcript', () => {
+  const md = buildMarkdown({
+    title: 'Chaptered',
+    channel: 'Channel',
+    url: 'https://www.youtube.com/watch?v=xyz',
+    videoId: 'xyz',
+    captureDate: '2026-08-14T00:00:00.000Z',
+    topic: 'Misc',
+    cues: [],
+    chapters: [
+      { startSeconds: 0, title: 'Intro' },
+      { startSeconds: 135, title: 'Section 2' },
+    ],
+  });
+
+  assert.match(md, /## Chapters\n\n- \[00:00\]\(https:\/\/www\.youtube\.com\/watch\?v=xyz&t=0s\) Intro\n- \[02:15\]\(https:\/\/www\.youtube\.com\/watch\?v=xyz&t=135s\) Section 2/);
+  assert.ok(md.indexOf('## Chapters') < md.indexOf('## Transcript'));
+});
+
+test('buildMarkdown: wraps Description in a fenced code block, before Transcript', () => {
+  const md = buildMarkdown({
+    title: 'Described',
+    channel: 'Channel',
+    url: 'https://www.youtube.com/watch?v=xyz',
+    videoId: 'xyz',
+    captureDate: '2026-08-14T00:00:00.000Z',
+    topic: 'Misc',
+    cues: [],
+    description: 'Check out the repo:\nhttps://example.com/repo',
+  });
+
+  assert.match(md, /## Description\n\n```\nCheck out the repo:\nhttps:\/\/example\.com\/repo\n```\n/);
+  assert.ok(md.indexOf('## Description') < md.indexOf('## Transcript'));
 });

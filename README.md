@@ -12,7 +12,7 @@ A Chrome extension that captures a YouTube video's existing transcript and saves
 4. Type or pick a topic folder (autocompletes against folders you've already created).
 5. Click **Save to Vault** — a Markdown file is written to `<your vault folder>/<topic>/<video title>.md`.
 
-Each note has a fixed template you fill in yourself:
+Each note is a plain transcript capture — no empty template sections to skip past:
 
 ```
 ---
@@ -24,13 +24,16 @@ captured: 2026-08-14T00:00:00.000Z
 topic: ...
 ---
 
-## Summary
+## Chapters
 
-## Key Insights
+- [00:00](https://www.youtube.com/watch?v=...&t=0s) Intro
+- [02:15](https://www.youtube.com/watch?v=...&t=135s) Section 2
 
-## Tools / Frameworks Mentioned
+## Description
 
-## Skills
+​```
+The video's description, verbatim.
+​```
 
 ## Transcript
 
@@ -38,7 +41,9 @@ topic: ...
 - [00:07](https://www.youtube.com/watch?v=...&t=7s) ...
 ```
 
-Timestamp links jump back into the video at that exact second. Browsing the resulting notes is intentionally left to whatever you already use for Markdown — [Obsidian](https://obsidian.md/), VS Code, or a plain file explorer all work, since these are just folders and `.md` files.
+Chapters and Description are only included when present — a video with no creator-authored chapters just won't have that section. Both are captured automatically, the same way the transcript is: they're facts already sitting on the page, not analysis. Timestamp links jump back into the video at that exact second. Browsing the resulting notes is intentionally left to whatever you already use for Markdown — [Obsidian](https://obsidian.md/), VS Code, or a plain file explorer all work, since these are just folders and `.md` files.
+
+Any further structure — a summary, key insights, tools mentioned — is deliberately *not* generated at capture time. Add it yourself later if and when a video is worth revisiting, or layer an on-demand analysis step on top of the captured transcript when you actually want one; nothing is forced into every file up front. `lib/vaultNoteParser.js` already understands notes that have gained extra `##` sections this way, so nothing about the format needs to change if you add them by hand.
 
 ## Install (unpacked — this isn't on the Chrome Web Store)
 
