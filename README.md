@@ -66,9 +66,10 @@ Go to `chrome://extensions/shortcuts` to customize or reassign `Ctrl+Shift+Y`.
 
 - **YouTube only.** Other video platforms are not supported in this version.
 - **Requires existing captions.** Videos with no captions (auto-generated or manual) cannot be captured — there is no speech-to-text fallback by design.
-- **Depends on YouTube's page internals.** Video metadata comes from `ytInitialPlayerResponse` (an undocumented internal variable), and the transcript itself is read by opening the on-page "Show transcript" panel and scraping its rendered rows — not by calling YouTube's caption API directly, which now returns empty responses for unauthenticated requests. Neither is a public, documented interface, so a YouTube redesign could break capture without notice. If that happens, open the browser DevTools console on the YouTube tab and look for `[TranscriptVault]` log lines — they identify exactly which step failed.
+- **Depends on YouTube's page internals.** Video metadata and availability are read live from the page's DOM, and the transcript itself is read by opening the on-page "Show transcript" panel and scraping its rendered rows — not by calling YouTube's caption API directly, which now returns empty responses for unauthenticated requests. None of this is a public, documented interface, so a YouTube redesign could break capture without notice. If that happens, open the browser DevTools console on the YouTube tab and look for `[TranscriptVault]` log lines — they identify exactly which step failed.
 - **Topic filing is manual.** There is no automatic classification — you choose or type the topic folder every time. This is deliberate: it keeps the tool free of AI/API dependencies and avoids folder-taxonomy drift from automated guesses.
 - **Age-restricted, private, or removed videos** cannot be captured.
+- **Wait a beat after navigating to a new video before capturing.** Clicking a video from the homepage or a suggested list navigates client-side (no full page reload), and the page can take a couple of seconds to fully update to the new video. Capturing during that window could pick up stale data from the previous video. Once the title/thumbnail has visually updated, it's safe to capture.
 
 ## Development
 

@@ -1,20 +1,35 @@
 (async function extractCaptions() {
-  function readPlayerResponse() {
-    if (window.ytInitialPlayerResponse) return window.ytInitialPlayerResponse;
-
-    const scripts = document.querySelectorAll('script');
-    for (const script of scripts) {
-      const text = script.textContent || '';
-      const match = text.match(/ytInitialPlayerResponse\s*=\s*(\{.*?\});/s);
-      if (match) {
-        try {
-          return JSON.parse(match[1]);
-        } catch (_err) {
-          // try next script tag
-        }
-      }
+  // window.ytInitialPlayerResponse is only injected on a genuine full page load. Clicking a
+  // video from the homepage/sidebar navigates client-side (SPA) without a reload, and that
+  // global is never (re)populated — it stays undefined or stale from whatever page loaded
+  // first. So metadata and availability must come from live DOM, which YouTube's router does
+  // keep in sync on every navigation.
+  function getVideoIdFromUrl() {
+    try {
+      return new URL(window.location.href).searchParams.get('v') || '';
+    } catch (_err) {
+      return '';
     }
-    return null;
+  }
+
+  function getTitle() {
+    const h1 = document.querySelector('h1.ytd-watch-metadata yt-formatted-string, h1.ytd-watch-metadata');
+    if (h1 && h1.textContent.trim()) return h1.textContent.trim();
+    const fallback = (document.title || '').replace(/\s*-\s*YouTube\s*$/, '').trim();
+    return fallback || 'Untitled video';
+  }
+
+  function getChannel() {
+    const el = document.querySelector(
+      'ytd-channel-name a, #channel-name a, ytd-video-owner-renderer ytd-channel-name a'
+    );
+    return el ? el.textContent.trim() : '';
+  }
+
+  function isVideoUnavailable() {
+    if (document.querySelector('ytd-player-error-message-renderer')) return true;
+    const bodyText = (document.body.innerText || '').slice(0, 2000);
+    return /video (isn't|is not) available|video has been removed|this video is private|sign in to confirm your age/i.test(bodyText);
   }
 
   function findShowTranscriptButton() {
@@ -123,22 +138,19 @@
   }
 
   try {
-    const playerResponse = readPlayerResponse();
-    if (!playerResponse) {
-      console.error('[TranscriptVault] no ytInitialPlayerResponse found on page');
+    const videoId = getVideoIdFromUrl();
+    if (!videoId) {
+      console.error('[TranscriptVault] could not determine a video id from the URL');
       return { ok: false, reason: 'no_player_response' };
     }
 
-    const playabilityStatus = playerResponse.playabilityStatus && playerResponse.playabilityStatus.status;
-    if (playabilityStatus && playabilityStatus !== 'OK') {
-      console.error('[TranscriptVault] playabilityStatus:', playabilityStatus);
+    if (isVideoUnavailable()) {
+      console.error('[TranscriptVault] video appears unavailable (DOM error state detected)');
       return { ok: false, reason: 'unavailable' };
     }
 
-    const videoDetails = playerResponse.videoDetails || {};
-    const videoId = videoDetails.videoId || new URL(window.location.href).searchParams.get('v') || '';
-    const title = videoDetails.title || document.title || 'Untitled video';
-    const channel = videoDetails.author || '';
+    const title = getTitle();
+    const channel = getChannel();
     const url = `https://www.youtube.com/watch?v=${videoId}`;
 
     const btn = findShowTranscriptButton();
@@ -147,7 +159,18 @@
       return { ok: false, reason: 'no_captions' };
     }
 
-    const wasAlreadyOpen = isTranscriptPanelExpanded();
+    // Force a fresh open every time. If a transcript panel was left expanded from a
+    // previously viewed video (common after in-page/SPA navigation), its segments can be
+    // stale leftovers rather than this video's — closing it first makes the click below
+    // re-render fresh for the video we're actually on.
+    if (isTranscriptPanelExpanded()) {
+      const preCloseBtn = findCloseTranscriptButton();
+      if (preCloseBtn) {
+        try { preCloseBtn.click(); } catch (_err) { /* ignore */ }
+        await sleep(200);
+      }
+    }
+
     btn.click();
 
     const segs = await waitFor(() => {
@@ -164,11 +187,9 @@
     const finalSegs = findSegmentElements();
     const cues = dedupeCues(finalSegs.map(extractSegment).filter((c) => c.text));
 
-    if (!wasAlreadyOpen) {
-      const closeBtn = findCloseTranscriptButton();
-      if (closeBtn) {
-        try { closeBtn.click(); } catch (_err) { /* best-effort cleanup, ignore */ }
-      }
+    const closeBtn = findCloseTranscriptButton();
+    if (closeBtn) {
+      try { closeBtn.click(); } catch (_err) { /* best-effort cleanup, ignore */ }
     }
 
     if (cues.length === 0) {
