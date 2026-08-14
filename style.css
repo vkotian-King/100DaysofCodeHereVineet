@@ -1,0 +1,49 @@
+:root {
+  color-scheme: light dark;
+  --bg: #ffffff;
+  --surface: #f7f7f5;
+  --border: #e6e6e2;
+  --text: #1a1a1a;
+  --text-muted: #6b6b6b;
+  --accent: #1f4e9e;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #15171a;
+    --surface: #1e2126;
+    --border: #2c2f35;
+    --text: #eaeaea;
+    --text-muted: #9aa0a6;
+    --accent: #7aa6f0;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 5rem;
+  line-height: 1.65;
+  background: var(--bg);
+  color: var(--text);
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+h1 { font-size: 1.75rem; font-weight: 600; margin: 0 0 0.5rem; letter-spacing: -0.01em; }
+h2 { font-size: 0.95rem; font-weight: 600; margin: 2.5rem 0 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); }
+.meta { color: var(--text-muted); font-size: 0.9rem; margin: 0 0 2rem; }
+.back-link { display: inline-block; margin-bottom: 2rem; font-size: 0.85rem; color: var(--text-muted); }
+.back-link:hover { color: var(--accent); }
+.search-input { display: block; width: 100%; padding: 0.65rem 0.9rem; margin: 0 0 1rem; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text); font-size: 0.95rem; font-family: inherit; }
+.search-input:focus { outline: none; border-color: var(--accent); }
+ul.transcript, ul.chapters { list-style: none; padding: 0; margin: 0; }
+ul.transcript li, ul.chapters li { padding: 0.4rem 0; border-bottom: 1px solid var(--border); }
+ul.transcript li:last-child, ul.chapters li:last-child { border-bottom: none; }
+ul.transcript a, ul.chapters a { font-variant-numeric: tabular-nums; font-size: 0.85rem; margin-right: 0.75rem; }
+.description { white-space: pre-wrap; word-wrap: break-word; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.25rem; font-size: 0.88rem; }
+.topic-list, .note-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem; }
+.topic-list li, .note-list li { padding: 1rem 1.25rem; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); transition: border-color 0.15s ease; }
+.topic-list li:hover, .note-list li:hover { border-color: var(--accent); }
+.topic-list a, .note-list a { font-weight: 500; font-size: 1rem; }
+.note-list .note-meta { color: var(--text-muted); font-size: 0.85rem; margin-top: 0.25rem; }
+footer.attribution { margin-top: 4rem; padding-top: 1.25rem; border-top: 1px solid var(--border); font-size: 0.8rem; color: var(--text-muted); }
