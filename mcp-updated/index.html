@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MCP updated</title>
+<link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+<a class="back-link" href="../index.html">&larr; All topics</a>
+<h1>MCP updated</h1>
+<p class="meta">2 notes</p>
+<input type="search" id="site-search" class="search-input" placeholder="Search notes…" aria-label="Search" />
+<section data-searchable><ul class="note-list">
+<li data-search="how model context protocol (mcp) actually works google cloud tech mcp updated"><a href="how-model-context-protocol-mcp-actually-works.html">How Model Context Protocol (MCP) actually works</a><div class="note-meta">Google Cloud Tech &middot; MCP updated</div></li>
+<li data-search="mcp vs api: why traditional apis are failing ai agents google cloud tech mcp updated"><a href="mcp-vs-api-why-traditional-apis-are-failing-ai-agents.html">MCP vs API: Why traditional APIs are failing AI agents</a><div class="note-meta">Google Cloud Tech &middot; MCP updated &middot; MCP (Model Context Protocol) is a standard that lets AI models discover and call tools automatically, instead of developers hand-writing cus…</div></li>
+</ul></section>
+<footer class="attribution">Captured with <a href="https://github.com/vkotian-King/100DaysofCodeHereVineet" target="_blank" rel="noopener">YouTube Transcript Vault</a> — a free, local-first way to build your own learning journal.</footer>
+<script>
+(function () {
+  var input = document.getElementById('site-search');
+  if (!input) return;
+  var items = Array.prototype.slice.call(document.querySelectorAll('[data-search]'));
+  var sections = Array.prototype.slice.call(document.querySelectorAll('[data-searchable]'));
+  input.addEventListener('input', function () {
+    var q = input.value.trim().toLowerCase();
+    items.forEach(function (el) {
+      var match = !q || el.getAttribute('data-search').indexOf(q) !== -1;
+      el.style.display = match ? '' : 'none';
+    });
+    sections.forEach(function (section) {
+      var anyVisible = Array.prototype.slice.call(section.querySelectorAll('[data-search]'))
+        .some(function (el) { return el.style.display !== 'none'; });
+      section.style.display = anyVisible ? '' : 'none';
+    });
+  });
+})();
+</script>
+</body>
+</html>
