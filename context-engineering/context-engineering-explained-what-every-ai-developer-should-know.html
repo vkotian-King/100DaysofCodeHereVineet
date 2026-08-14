@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Context engineering explained: What every AI developer should know</title>
+<link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+<a class="back-link" href="../index.html">&larr; All topics</a>
+<article>
+<h1>Context engineering explained: What every AI developer should know</h1>
+<p class="meta">Google Cloud Tech &middot; <a href="https://www.youtube.com/watch?v=BBPQYtR7oUk" target="_blank" rel="noopener">Watch on YouTube</a> &middot; captured 2026-08-14</p>
+<section><h2>Chapters</h2><ul class="chapters">
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=0s" target="_blank" rel="noopener">00:00</a> Bigger prompts don&#39;t fix bad AI</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=47s" target="_blank" rel="noopener">00:47</a> What is context engineering?</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=99s" target="_blank" rel="noopener">01:39</a> Why context size isn&#39;t everything</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=138s" target="_blank" rel="noopener">02:18</a> Four failure modes: Poisoning, distraction, confusion, clash</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=178s" target="_blank" rel="noopener">02:58</a> Context engineering vs prompt engineering</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=256s" target="_blank" rel="noopener">04:16</a> The seven components of a context stack</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=302s" target="_blank" rel="noopener">05:02</a> Building LogLook: A realistic agent example</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=420s" target="_blank" rel="noopener">07:00</a> The 4 steps of context engineering</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=428s" target="_blank" rel="noopener">07:08</a> Step 1: Write</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=470s" target="_blank" rel="noopener">07:50</a> Step 2: Select</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=514s" target="_blank" rel="noopener">08:34</a> Step 3: Compress</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=554s" target="_blank" rel="noopener">09:14</a> Step 4: Isolate</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=590s" target="_blank" rel="noopener">09:50</a> Curate, don&#39;t dump</li>
+</ul></section>
+<section><h2>Description</h2><pre class="description">White-paper on context engineering → https://goo.gle/3QiKYbT 
+More info on context engineering → https://goo.gle/43fII8c 
+
+Context Engineering: Why writing bigger prompts won&#39;t fix your AI, and what to do instead. In this video, Smitha Kolan explains what context engineering is, how it&#39;s different from prompt engineering, and gives you a practical step-by-step framework to build smarter, more reliable AI agents.
+
+Models keep getting larger context windows, but longer context isn&#39;t always better. When the windows is stuffed with everything, accuracy drops and errors sneak in. Context engineering is the discipline of curating the smallest set of high-signal information the model needs at each step: the right instructions, the right tools, the right facts, and nothing more.
+
+In this video you&#39;ll learn:
+
+📌 The 7 components of a well engineered context stack.
+
+⚠️ The 4 failure modes that break AI agents.
+
+🛠️ The 4 steps of context engineering.
+
+
+Chapters:
+0:00 - Bigger prompts don&#39;t fix bad AI
+0:47 - What is context engineering?
+1:39 - Why context size isn&#39;t everything
+2:18 - Four failure modes: Poisoning, distraction, confusion, clash
+2:58 - Context engineering vs prompt engineering
+4:16 - The seven components of a context stack
+5:02 - Building LogLook: A realistic agent example
+7:00 - The 4 steps of context engineering
+7:08 - Step 1: Write
+7:50 - Step 2: Select
+8:34 - Step 3: Compress
+9:14 - Step 4: Isolate
+9:50 - Curate, don&#39;t dump
+
+More resources:
+MCP Explained → https://goo.gle/3QY4Hhw
+MCP vs API → https://goo.gle/4ffLPCF
+
+Watch more Modern AI Agents: From Theory to Production → https://goo.gle/Learn-with-Smitha
+🔔 Subscribe to Google Cloud Tech → https://goo.gle/GoogleCloudTech
+
+#ContextEngineering #PromptEngineering #AIAgents #GoogleCloud #Gemini #ArtificialIntelligence #MachineLearning</pre></section>
+
+<section><h2>Transcript</h2><ul class="transcript">
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=4s" target="_blank" rel="noopener">00:04</a> Most people try to fix bad.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=6s" target="_blank" rel="noopener">00:06</a> BI Answers by writing bigger prompts.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=9s" target="_blank" rel="noopener">00:09</a> That&#39;s a wrong move.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=11s" target="_blank" rel="noopener">00:11</a> If you have been padding prompts like an essay to make your model</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=15s" target="_blank" rel="noopener">00:15</a> give you better answers than stick around in a few minutes,</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=18s" target="_blank" rel="noopener">00:18</a> you&#39;ll learn how to use context engineering in a simple way</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=22s" target="_blank" rel="noopener">00:22</a> to make your AI systems smarter and way more reliable.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=26s" target="_blank" rel="noopener">00:26</a> By the end of this video, you&#39;ll know exactly what</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=29s" target="_blank" rel="noopener">00:29</a> context engineering is, why it&#39;s different from just prompting</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=33s" target="_blank" rel="noopener">00:33</a> and a step by step way to use it on real projects.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=37s" target="_blank" rel="noopener">00:37</a> We&#39;ll road test it on a tiny but realistic agent,</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=41s" target="_blank" rel="noopener">00:41</a> show you where context usually fall apart,</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=44s" target="_blank" rel="noopener">00:44</a> and give you a checklist on how to fix them really fast.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=47s" target="_blank" rel="noopener">00:47</a> Context engineering is the craft of deciding exactly what</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=51s" target="_blank" rel="noopener">00:51</a> the model should see and what it shouldn&#39;t.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=54s" target="_blank" rel="noopener">00:54</a> At each step, it includes your system, message tools,</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=59s" target="_blank" rel="noopener">00:59</a> retrieved facts, short term notes.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=62s" target="_blank" rel="noopener">01:02</a> Long term memories.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=64s" target="_blank" rel="noopener">01:04</a> Format rules and also recent history.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=67s" target="_blank" rel="noopener">01:07</a> If prompt engineering is how you word the ask,</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=72s" target="_blank" rel="noopener">01:12</a> then context engineering is everything.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=74s" target="_blank" rel="noopener">01:14</a> You feed the model so it can actually do the job.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=78s" target="_blank" rel="noopener">01:18</a> This is a huge shift that AI teams across the industry</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=81s" target="_blank" rel="noopener">01:21</a> are calling out where we are moving from perfect prompts</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=86s" target="_blank" rel="noopener">01:26</a> to curating the smallest set of high signal tokens</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=90s" target="_blank" rel="noopener">01:30</a> that steer the behavior of your model into the right direction,</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=94s" target="_blank" rel="noopener">01:34</a> especially in agents that run for many turns and use tools.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=99s" target="_blank" rel="noopener">01:39</a> So now context is being treated like a scarce working memory,</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=104s" target="_blank" rel="noopener">01:44</a> and AI developers are looking at it differently.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=107s" target="_blank" rel="noopener">01:47</a> Why does this matter.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=108s" target="_blank" rel="noopener">01:48</a> So models keep getting larger context Windows,</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=113s" target="_blank" rel="noopener">01:53</a> but longer context isn&#39;t always better.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=116s" target="_blank" rel="noopener">01:56</a> When you fill up that window, accuracy often</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=119s" target="_blank" rel="noopener">01:59</a> drops because errors sneak in and the model gets distracted</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=124s" target="_blank" rel="noopener">02:04</a> by stale or irrelevant text or two pieces of context</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=129s" target="_blank" rel="noopener">02:09</a> which actually quietly contradict each other.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=131s" target="_blank" rel="noopener">02:11</a> This shows up most in agents, where the conversation and tools</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=136s" target="_blank" rel="noopener">02:16</a> output snowballs, so you&#39;ll see four common failure modes</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=141s" target="_blank" rel="noopener">02:21</a> in the wild.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=142s" target="_blank" rel="noopener">02:22</a> First off, we have poisoning, where a hallucinated fact</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=146s" target="_blank" rel="noopener">02:26</a> gets into context and is reused over and over again.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=150s" target="_blank" rel="noopener">02:30</a> Second, we have something called distraction,</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=153s" target="_blank" rel="noopener">02:33</a> where the model fixates on a huge history instead</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=157s" target="_blank" rel="noopener">02:37</a> of making a fresh plan.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=159s" target="_blank" rel="noopener">02:39</a> Third is confusion, where extra unrelated details nudge it</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=163s" target="_blank" rel="noopener">02:43</a> into the wrong answer.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=165s" target="_blank" rel="noopener">02:45</a> And fourth is clash, where two sources disagree</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=169s" target="_blank" rel="noopener">02:49</a> and the model picks the wrong one.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=172s" target="_blank" rel="noopener">02:52</a> So why am I mentioning this because knowing these names can</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=175s" target="_blank" rel="noopener">02:55</a> help you fix what is wrong.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=177s" target="_blank" rel="noopener">02:57</a> Next, we need to talk about what the difference is</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=180s" target="_blank" rel="noopener">03:00</a> between context engineering versus prompt engineering.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=184s" target="_blank" rel="noopener">03:04</a> So prompt engineering is how you write</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=187s" target="_blank" rel="noopener">03:07</a> and structure instructions examples and constraints.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=191s" target="_blank" rel="noopener">03:11</a> It&#39;s still very relevant.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=193s" target="_blank" rel="noopener">03:13</a> And useful, but context engineering</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=195s" target="_blank" rel="noopener">03:15</a> is how you assemble everything that the model will</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=198s" target="_blank" rel="noopener">03:18</a> see at runtime, like the right tools, the right facts,</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=202s" target="_blank" rel="noopener">03:22</a> the right history, and the right format.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=205s" target="_blank" rel="noopener">03:25</a> It&#39;s dynamic and happens before every model call.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=209s" target="_blank" rel="noopener">03:29</a> So it&#39;s pretty powerful.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=210s" target="_blank" rel="noopener">03:30</a> Think of the model like a brain with a limited short term</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=213s" target="_blank" rel="noopener">03:33</a> memory.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=214s" target="_blank" rel="noopener">03:34</a> Your job is to pack it with all the things</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=217s" target="_blank" rel="noopener">03:37</a> that it needs for the next step.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=219s" target="_blank" rel="noopener">03:39</a> And you have limited space to do so.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=221s" target="_blank" rel="noopener">03:41</a> Here is what is in a context stack currently for most models</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=226s" target="_blank" rel="noopener">03:46</a> that we use.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=227s" target="_blank" rel="noopener">03:47</a> There are seven pieces involved.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=229s" target="_blank" rel="noopener">03:49</a> First, we have instructions, which</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=231s" target="_blank" rel="noopener">03:51</a> are the system prompt and guardrails.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=235s" target="_blank" rel="noopener">03:55</a> Clear and plain language wins here.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=237s" target="_blank" rel="noopener">03:57</a> Second, we have user input, which is</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=240s" target="_blank" rel="noopener">04:00</a> the current ask from the user.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=242s" target="_blank" rel="noopener">04:02</a> Third, we have retrieved facts which are the few snippets that</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=246s" target="_blank" rel="noopener">04:06</a> matter the most.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=248s" target="_blank" rel="noopener">04:08</a> Fourth, we have tools which are functions that the model can</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=252s" target="_blank" rel="noopener">04:12</a> call as well as their descriptions, which</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=254s" target="_blank" rel="noopener">04:14</a> are part of the context.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=256s" target="_blank" rel="noopener">04:16</a> Fifth, we have short term notes which</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=259s" target="_blank" rel="noopener">04:19</a> summarizes all the recent steps so that the model remembers</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=263s" target="_blank" rel="noopener">04:23</a> what has changed recently.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=265s" target="_blank" rel="noopener">04:25</a> Sixth, we have long term memory, which</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=268s" target="_blank" rel="noopener">04:28</a> contains stable facts about the user or project selected</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=273s" target="_blank" rel="noopener">04:33</a> on demand.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=274s" target="_blank" rel="noopener">04:34</a> And lastly, we have output format,</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=276s" target="_blank" rel="noopener">04:36</a> which are schemas or examples that</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=279s" target="_blank" rel="noopener">04:39</a> lock the shape of the answer.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=281s" target="_blank" rel="noopener">04:41</a> Now let&#39;s dive into a single example.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=284s" target="_blank" rel="noopener">04:44</a> Let&#39;s build a simple agent called</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=287s" target="_blank" rel="noopener">04:47</a> log look, which is a helper that three Azure security alerts when</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=293s" target="_blank" rel="noopener">04:53</a> they occur, and drafts a one paragraph summary of the alert,</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=298s" target="_blank" rel="noopener">04:58</a> plus a severity score of how severe the alert is.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=301s" target="_blank" rel="noopener">05:01</a> The chatbot way is to say, hey, here you go.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=305s" target="_blank" rel="noopener">05:05</a> Analyze today&#39;s logs and tell me what&#39;s wrong.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=308s" target="_blank" rel="noopener">05:08</a> It might actually just spit out random guesses at that point,</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=311s" target="_blank" rel="noopener">05:11</a> but with context engineering, we feed log look our agent</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=316s" target="_blank" rel="noopener">05:16</a> a clean plate of the following things.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=318s" target="_blank" rel="noopener">05:18</a> First, we give system instructions summarize incidents</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=323s" target="_blank" rel="noopener">05:23</a> into one paragraph plus a severity score between 0 and 4.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=328s" target="_blank" rel="noopener">05:28</a> Only use provided context and if missing data exists,</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=332s" target="_blank" rel="noopener">05:32</a> ask for a specific file path.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=335s" target="_blank" rel="noopener">05:35</a> Second, we will list tools that it</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=337s" target="_blank" rel="noopener">05:37</a> requires in order to answer the questions that we ask it.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=341s" target="_blank" rel="noopener">05:41</a> So for example, reading file or grep</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=345s" target="_blank" rel="noopener">05:45</a> or get known false positives.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=348s" target="_blank" rel="noopener">05:48</a> Third, we provide retrieved facts which only contain</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=352s" target="_blank" rel="noopener">05:52</a> today&#39;s log slice, and only lines with error</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=356s" target="_blank" rel="noopener">05:56</a> or critical from the last hour will be sent to our agent</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=360s" target="_blank" rel="noopener">06:00</a> and also the team&#39;s false positive list for noisy alerts</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=365s" target="_blank" rel="noopener">06:05</a> is something that we will also flag to our agent.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=368s" target="_blank" rel="noopener">06:08</a> The fourth thing that we&#39;re going to be passing to our agent</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=371s" target="_blank" rel="noopener">06:11</a> is short term notes.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=373s" target="_blank" rel="noopener">06:13</a> So we&#39;ve already checked this file.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=376s" target="_blank" rel="noopener">06:16</a> Next scan this log instead.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=379s" target="_blank" rel="noopener">06:19</a> And then we&#39;re also going to be giving it a format.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=382s" target="_blank" rel="noopener">06:22</a> We want it to expect JSON formats input and output.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=387s" target="_blank" rel="noopener">06:27</a> So that&#39;s the difference.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=388s" target="_blank" rel="noopener">06:28</a> Same model but with way better context.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=391s" target="_blank" rel="noopener">06:31</a> Now let&#39;s talk about the four steps of context engineering.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=395s" target="_blank" rel="noopener">06:35</a> These show up across the best agent systems.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=398s" target="_blank" rel="noopener">06:38</a> And they&#39;re really simple to remember right.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=402s" target="_blank" rel="noopener">06:42</a> Select compress and isolate.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=405s" target="_blank" rel="noopener">06:45</a> First we have write which means to save notes</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=408s" target="_blank" rel="noopener">06:48</a> outside of the context window.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=411s" target="_blank" rel="noopener">06:51</a> This actually lets the agent keep</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=413s" target="_blank" rel="noopener">06:53</a> a scratchpad which contains plans, intermediate results,</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=417s" target="_blank" rel="noopener">06:57</a> and open questions.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=418s" target="_blank" rel="noopener">06:58</a> It also makes sure that we don&#39;t squeeze all of that</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=422s" target="_blank" rel="noopener">07:02</a> into the next call, but instead keep it external</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=425s" target="_blank" rel="noopener">07:05</a> and only pull from it when it&#39;s relevant.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=429s" target="_blank" rel="noopener">07:09</a> This keeps the working context clean while preserving memory.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=433s" target="_blank" rel="noopener">07:13</a> So for our agent log look, we can store all of that</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=438s" target="_blank" rel="noopener">07:18</a> into something called investigation steps, which</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=442s" target="_blank" rel="noopener">07:22</a> will contain a bulleted list of what&#39;s been checked.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=445s" target="_blank" rel="noopener">07:25</a> Second step is select, which means pull only</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=449s" target="_blank" rel="noopener">07:29</a> what matters right now.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=451s" target="_blank" rel="noopener">07:31</a> So use retrieval to fetch just the log slices and policy</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=456s" target="_blank" rel="noopener">07:36</a> lines needed for this turn.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=458s" target="_blank" rel="noopener">07:38</a> Hybrid retrieval, which contains both keyword and semantics,</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=463s" target="_blank" rel="noopener">07:43</a> often beats embedding only search on messy logs.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=466s" target="_blank" rel="noopener">07:46</a> The point is selection and not hoarding.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=470s" target="_blank" rel="noopener">07:50</a> So for our agent log look, we&#39;ll be selecting the top n</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=473s" target="_blank" rel="noopener">07:53</a> number of error bursts and the specific section</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=477s" target="_blank" rel="noopener">07:57</a> on severity scoring from our runbook.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=480s" target="_blank" rel="noopener">08:00</a> And the third step we have compress, which means</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=484s" target="_blank" rel="noopener">08:04</a> keep the signal but drop the rest.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=486s" target="_blank" rel="noopener">08:06</a> What we need to do is periodically summarize</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=489s" target="_blank" rel="noopener">08:09</a> long histories into short loss aware nodes,</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=494s" target="_blank" rel="noopener">08:14</a> and then continue with a fresh window.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=496s" target="_blank" rel="noopener">08:16</a> So this keeps the last few raw items for safety,</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=500s" target="_blank" rel="noopener">08:20</a> but then it also beats dragging a huge chat history everywhere.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=505s" target="_blank" rel="noopener">08:25</a> So for log look we&#39;ll be keeping the last five findings,</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=509s" target="_blank" rel="noopener">08:29</a> but everything older will be rolled into a three line recap.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=514s" target="_blank" rel="noopener">08:34</a> The fourth and final step is isolate,</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=516s" target="_blank" rel="noopener">08:36</a> which means sandbox sources to avoid crosstalk.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=520s" target="_blank" rel="noopener">08:40</a> We can do this by splitting big jobs into subagents or phases.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=525s" target="_blank" rel="noopener">08:45</a> Each explores its own context and then returns a short digest</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=531s" target="_blank" rel="noopener">08:51</a> to a coordinator.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=532s" target="_blank" rel="noopener">08:52</a> This reduces leakage between tools</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=535s" target="_blank" rel="noopener">08:55</a> and prevents one noisy source from poisoning the rest.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=539s" target="_blank" rel="noopener">08:59</a> So for our agent log look, a reader subagent just</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=543s" target="_blank" rel="noopener">09:03</a> extracts the facts, and then a score or agent</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=546s" target="_blank" rel="noopener">09:06</a> applies the policy while a writer</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=549s" target="_blank" rel="noopener">09:09</a> agent composes the final summary from their digests.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=553s" target="_blank" rel="noopener">09:13</a> If you remember one thing from all of this,</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=555s" target="_blank" rel="noopener">09:15</a> it&#39;s really important to curate.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=558s" target="_blank" rel="noopener">09:18</a> Instead of dumping a large chunk of prompts.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=562s" target="_blank" rel="noopener">09:22</a> Context engineering isn&#39;t just a buzzword,</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=565s" target="_blank" rel="noopener">09:25</a> it&#39;s the natural progression of prompt engineering.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=568s" target="_blank" rel="noopener">09:28</a> It&#39;s a discipline of building robust, reliable, and truly</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=572s" target="_blank" rel="noopener">09:32</a> useful applications.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=573s" target="_blank" rel="noopener">09:33</a> It&#39;s how we move from simple chatbots</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=576s" target="_blank" rel="noopener">09:36</a> to complex AI agents that can become our collaborators.</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=580s" target="_blank" rel="noopener">09:40</a> Hope you found this video helpful and hope you&#39;ve</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=583s" target="_blank" rel="noopener">09:43</a> learned how context engineering actually works</li>
+<li><a href="https://www.youtube.com/watch?v=BBPQYtR7oUk&amp;t=586s" target="_blank" rel="noopener">09:46</a> and how it differs from something prompt engineering.</li>
+</ul></section>
+</article>
+<footer class="attribution">Captured with <a href="https://github.com/vkotian-King/100DaysofCodeHereVineet" target="_blank" rel="noopener">YouTube Transcript Vault</a> — a free, local-first way to build your own learning journal.</footer>
+</body>
+</html>
