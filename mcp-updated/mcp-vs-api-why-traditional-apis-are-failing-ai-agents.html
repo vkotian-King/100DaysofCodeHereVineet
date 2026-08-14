@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MCP vs API: Why traditional APIs are failing AI agents</title>
+<link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+<a class="back-link" href="../index.html">&larr; All topics</a>
+<article>
+<h1>MCP vs API: Why traditional APIs are failing AI agents</h1>
+<p class="meta">Google Cloud Tech &middot; <a href="https://www.youtube.com/watch?v=185XGEMefgc" target="_blank" rel="noopener">Watch on YouTube</a> &middot; captured 2026-08-14</p>
+<section><h2>Summary</h2><p>MCP (Model Context Protocol) is a standard that lets AI models discover and call tools automatically, instead of developers hand-writing custom integration code for every API. It doesn&#39;t replace APIs — it replaces the middleware between a model and the APIs it needs to use, the same way HTTP standardized how browsers talk to servers.</p></section>
+<section><h2>Key Insights</h2><ul><li>Traditional APIs assume a program (with a developer behind it) is the client. With MCP, the model itself is the client — it reads a tool&#39;s JSON-schema description and decides what to call, instead of being told exactly which endpoint to hit.</li><li>An MCP server sits next to an existing service (e.g. Gmail, Notion, Jira) and describes what it can do via JSON schemas — the model discovers inputs/outputs at runtime rather than needing hardcoded prompts for every action.</li><li>This removes the &quot;teach the model every endpoint via a long prompt&quot; pattern — one MCP interface can be used by any compliant model, instead of writing N custom integrations.</li><li>Security is still an open problem: permission layers, scopes, and auth need to live inside the protocol so a model can&#39;t take an unintended action (e.g. deleting data) — this part of the spec is still maturing.</li></ul></section>
+<section><h2>Tools / Frameworks Mentioned</h2><ul><li>MCP (Model Context Protocol)</li><li>JSON Schema (for describing tool inputs/outputs)</li><li>WebSocket / HTTP (transport between model and MCP server)</li><li>Example integrations referenced: Gmail, Notion, Jira</li></ul></section>
+<section><h2>Skills</h2><ul><li>Thinking in terms of &quot;capabilities and context&quot; for a model to reason over, rather than hardcoded endpoints and routes</li><li>Designing a tool description (schema) instead of writing prompt-level integration instructions</li></ul></section>
+<section><h2>Transcript</h2><ul class="transcript">
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=4s" target="_blank" rel="noopener">00:04</a> If you&#39;ve ever built an app that talks to an AI model,</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=9s" target="_blank" rel="noopener">00:09</a> MCP changes everything.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=11s" target="_blank" rel="noopener">00:11</a> Because the way AI connects to your tools, data,</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=14s" target="_blank" rel="noopener">00:14</a> and systems is being completely rewritten.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=17s" target="_blank" rel="noopener">00:17</a> For years, APIs used to be the glue that held everything</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=21s" target="_blank" rel="noopener">00:21</a> together.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=22s" target="_blank" rel="noopener">00:22</a> But now there&#39;s a new standard rising fast,</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=25s" target="_blank" rel="noopener">00:25</a> and that something is called the model context protocol, or MCP.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=30s" target="_blank" rel="noopener">00:30</a> And it might just be the biggest shift since APIs themselves.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=35s" target="_blank" rel="noopener">00:35</a> So what exactly is MCP, and why are people</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=39s" target="_blank" rel="noopener">00:39</a> saying it could replace the way we integrate AI</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=43s" target="_blank" rel="noopener">00:43</a> with everything around it.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=45s" target="_blank" rel="noopener">00:45</a> Let&#39;s break it down clearly so that by the end of this video,</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=49s" target="_blank" rel="noopener">00:49</a> you&#39;ll understand how MCP actually works</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=52s" target="_blank" rel="noopener">00:52</a> and how it&#39;s different from APIs,</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=54s" target="_blank" rel="noopener">00:54</a> and why it&#39;s reshaping how we build agents and applications</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=59s" target="_blank" rel="noopener">00:59</a> that use large language models.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=61s" target="_blank" rel="noopener">01:01</a> For decades, API were the universal handshake</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=65s" target="_blank" rel="noopener">01:05</a> between systems.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=67s" target="_blank" rel="noopener">01:07</a> You define an endpoint, you send a request</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=70s" target="_blank" rel="noopener">01:10</a> and you got a response back.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=72s" target="_blank" rel="noopener">01:12</a> It&#39;s clean and predictable, and for traditional software,</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=75s" target="_blank" rel="noopener">01:15</a> that is perfect.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=77s" target="_blank" rel="noopener">01:17</a> But when large language models enter the picture,</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=80s" target="_blank" rel="noopener">01:20</a> everything changed.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=81s" target="_blank" rel="noopener">01:21</a> Models don&#39;t just call one endpoint,</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=84s" target="_blank" rel="noopener">01:24</a> they might talk to 10 endpoints.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=86s" target="_blank" rel="noopener">01:26</a> They want to chain them together or even interpret</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=90s" target="_blank" rel="noopener">01:30</a> unstructured data and also ask follow up questions.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=94s" target="_blank" rel="noopener">01:34</a> And that means they don&#39;t just need access to a tool,</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=97s" target="_blank" rel="noopener">01:37</a> they also need context.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=99s" target="_blank" rel="noopener">01:39</a> But here&#39;s the problem APIs are built for programs</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=104s" target="_blank" rel="noopener">01:44</a> talking to programs.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=105s" target="_blank" rel="noopener">01:45</a> They are not built for models.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=107s" target="_blank" rel="noopener">01:47</a> Reasoning over messy real world data and API</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=111s" target="_blank" rel="noopener">01:51</a> is like a locked cabinet.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=114s" target="_blank" rel="noopener">01:54</a> You need to know exactly what drawer to open</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=118s" target="_blank" rel="noopener">01:58</a> and what shape the key is.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=119s" target="_blank" rel="noopener">01:59</a> But a model is trying to understand</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=121s" target="_blank" rel="noopener">02:01</a> what&#39;s inside the cabinet without clear labels</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=125s" target="_blank" rel="noopener">02:05</a> so it doesn&#39;t know which function to call</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=128s" target="_blank" rel="noopener">02:08</a> or which parameters to pass until you tell it.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=131s" target="_blank" rel="noopener">02:11</a> And you have to hardcode it sometimes.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=133s" target="_blank" rel="noopener">02:13</a> And oftentimes have to keep explaining over and over again.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=137s" target="_blank" rel="noopener">02:17</a> That&#39;s where MCP comes in.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=139s" target="_blank" rel="noopener">02:19</a> It was designed to make models autonomously discover and use</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=144s" target="_blank" rel="noopener">02:24</a> tools without the constant hand-holding</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=147s" target="_blank" rel="noopener">02:27</a> that we&#39;ve been doing in prompt engineering.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=150s" target="_blank" rel="noopener">02:30</a> So before we dive deeper, let&#39;s define both sides.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=154s" target="_blank" rel="noopener">02:34</a> Clearly, APIs are the traditional way software</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=158s" target="_blank" rel="noopener">02:38</a> communicates.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=159s" target="_blank" rel="noopener">02:39</a> They expose specific endpoints.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=161s" target="_blank" rel="noopener">02:41</a> They accept requests in structured formats like JSON,</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=166s" target="_blank" rel="noopener">02:46</a> and they return predictable outputs.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=168s" target="_blank" rel="noopener">02:48</a> Developers document them, secure them, and version them.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=172s" target="_blank" rel="noopener">02:52</a> But they assume one thing that both sides</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=175s" target="_blank" rel="noopener">02:55</a> knows exactly what to expect.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=177s" target="_blank" rel="noopener">02:57</a> MCP flips that assumption.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=179s" target="_blank" rel="noopener">02:59</a> Instead of the model needing to be manually thought</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=182s" target="_blank" rel="noopener">03:02</a> about each endpoint, MCP gives the model a standardized way</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=187s" target="_blank" rel="noopener">03:07</a> to discover what a tool can do.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=189s" target="_blank" rel="noopener">03:09</a> What kind of inputs it expects, and what kind of outputs</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=193s" target="_blank" rel="noopener">03:13</a> it returns all through context.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=196s" target="_blank" rel="noopener">03:16</a> Think of it like giving a model a live, machine readable</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=200s" target="_blank" rel="noopener">03:20</a> map of your API instead of a static instruction manual.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=205s" target="_blank" rel="noopener">03:25</a> Now that sounds abstract, so let&#39;s make it real.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=208s" target="_blank" rel="noopener">03:28</a> Imagine you&#39;re building an AI agent that</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=210s" target="_blank" rel="noopener">03:30</a> manages support tickets.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=212s" target="_blank" rel="noopener">03:32</a> You give it access to Gmail, notion, and Jira.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=216s" target="_blank" rel="noopener">03:36</a> With APIs.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=217s" target="_blank" rel="noopener">03:37</a> You&#39;d write custom code for each integration,</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=220s" target="_blank" rel="noopener">03:40</a> handle issues like pagination, auth tokens, error cases,</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=226s" target="_blank" rel="noopener">03:46</a> rate limits, and also teach the model through long prompts</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=231s" target="_blank" rel="noopener">03:51</a> like when you want to create a Jira ticket.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=234s" target="_blank" rel="noopener">03:54</a> Call this endpoint with these fields when</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=237s" target="_blank" rel="noopener">03:57</a> you want to reply to an email, call Gmail with this payload,</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=241s" target="_blank" rel="noopener">04:01</a> but with MCP you don&#39;t need to do any of that.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=244s" target="_blank" rel="noopener">04:04</a> Each service like Gmail, notion, Jira exposes and MCP</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=250s" target="_blank" rel="noopener">04:10</a> compatible interface.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=252s" target="_blank" rel="noopener">04:12</a> The model discovers these tools automatically</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=255s" target="_blank" rel="noopener">04:15</a> and understands their functions as part of its environment.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=259s" target="_blank" rel="noopener">04:19</a> You don&#39;t tell it how to do it, you give the context</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=262s" target="_blank" rel="noopener">04:22</a> and it figures it out dynamically.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=264s" target="_blank" rel="noopener">04:24</a> That&#39;s the core difference between APIs,</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=267s" target="_blank" rel="noopener">04:27</a> which are code level contracts between two applications,</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=271s" target="_blank" rel="noopener">04:31</a> and MCP, which is a semantic protocol between a model</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=276s" target="_blank" rel="noopener">04:36</a> and its environment.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=277s" target="_blank" rel="noopener">04:37</a> So you&#39;re no longer teaching the model which endpoint to hit,</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=280s" target="_blank" rel="noopener">04:40</a> but you&#39;re giving it a structured description of what&#39;s</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=283s" target="_blank" rel="noopener">04:43</a> available and letting it reason about which tool to use</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=287s" target="_blank" rel="noopener">04:47</a> and when.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=288s" target="_blank" rel="noopener">04:48</a> It&#39;s like giving the model a toolbox instead</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=290s" target="_blank" rel="noopener">04:50</a> of forcing it to memorize how each tool works.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=294s" target="_blank" rel="noopener">04:54</a> This shift might sound small, but it&#39;s actually</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=296s" target="_blank" rel="noopener">04:56</a> massive for developers building agentic systems with APIs.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=301s" target="_blank" rel="noopener">05:01</a> The logic of what to call and when to call it</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=304s" target="_blank" rel="noopener">05:04</a> lived in your app code.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=306s" target="_blank" rel="noopener">05:06</a> With MCP, that logic can actually</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=308s" target="_blank" rel="noopener">05:08</a> move into the model&#39;s reasoning layer itself.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=311s" target="_blank" rel="noopener">05:11</a> You can now build a general purpose agent</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=314s" target="_blank" rel="noopener">05:14</a> that can plug into any tool that supports the protocol,</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=318s" target="_blank" rel="noopener">05:18</a> without having to rewrite code for each integration.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=321s" target="_blank" rel="noopener">05:21</a> That&#39;s the magic here, and it&#39;s standardization the same way</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=326s" target="_blank" rel="noopener">05:26</a> HTTP made websites interoperable,</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=330s" target="_blank" rel="noopener">05:30</a> allowing them to share and use data</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=332s" target="_blank" rel="noopener">05:32</a> with each and other systems, and letting them work together</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=336s" target="_blank" rel="noopener">05:36</a> to perform tasks with minimal human intervention.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=339s" target="_blank" rel="noopener">05:39</a> MCP is trying to make AI environments interoperable.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=344s" target="_blank" rel="noopener">05:44</a> But let&#39;s talk about what&#39;s actually</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=346s" target="_blank" rel="noopener">05:46</a> happening under the hood.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=347s" target="_blank" rel="noopener">05:47</a> And MCP server is a lightweight process that sits next</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=351s" target="_blank" rel="noopener">05:51</a> to your service or data source.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=353s" target="_blank" rel="noopener">05:53</a> It describes what it can do and what functions it exposes,</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=357s" target="_blank" rel="noopener">05:57</a> all using JSON schemas.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=360s" target="_blank" rel="noopener">06:00</a> The model connects to this server</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=361s" target="_blank" rel="noopener">06:01</a> through a standardized interface like WebSocket or HTTP,</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=366s" target="_blank" rel="noopener">06:06</a> and receives metadata about the available resources.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=371s" target="_blank" rel="noopener">06:11</a> Once connected, the model can call these functions directly,</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=375s" target="_blank" rel="noopener">06:15</a> not by guessing, but by using the metadata.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=379s" target="_blank" rel="noopener">06:19</a> It knows what inputs are required</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=381s" target="_blank" rel="noopener">06:21</a> and what each field means and what type of output to expect.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=385s" target="_blank" rel="noopener">06:25</a> The beauty is that everything is self-describing.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=388s" target="_blank" rel="noopener">06:28</a> You don&#39;t have to prompt engineer the schema or reformat</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=393s" target="_blank" rel="noopener">06:33</a> responses.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=394s" target="_blank" rel="noopener">06:34</a> It&#39;s all standardized.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=395s" target="_blank" rel="noopener">06:35</a> Compare that to an API where every single integration</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=400s" target="_blank" rel="noopener">06:40</a> is bespoke.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=402s" target="_blank" rel="noopener">06:42</a> You need a developer to read the docs, map the payloads,</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=405s" target="_blank" rel="noopener">06:45</a> and manually wrap the endpoints so MCP abstracts that away.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=410s" target="_blank" rel="noopener">06:50</a> This means instead of building 100 custom integrations,</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=413s" target="_blank" rel="noopener">06:53</a> you build one MCP interface and every compatible model</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=417s" target="_blank" rel="noopener">06:57</a> can use it instantly.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=419s" target="_blank" rel="noopener">06:59</a> That&#39;s why people are calling MCP the plug and play</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=422s" target="_blank" rel="noopener">07:02</a> layer for AI systems.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=424s" target="_blank" rel="noopener">07:04</a> Now, this doesn&#39;t mean APIs are going away.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=427s" target="_blank" rel="noopener">07:07</a> APIs are still the foundation.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=429s" target="_blank" rel="noopener">07:09</a> They&#39;re how your systems actually function.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=432s" target="_blank" rel="noopener">07:12</a> But MCP changes how models access those APIs.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=436s" target="_blank" rel="noopener">07:16</a> Think of it like this.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=438s" target="_blank" rel="noopener">07:18</a> MCP doesn&#39;t replace your backend.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=440s" target="_blank" rel="noopener">07:20</a> It replaces the middleware between the model and the API.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=445s" target="_blank" rel="noopener">07:25</a> The MCP server acts like a translator,</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=448s" target="_blank" rel="noopener">07:28</a> converting your existing APIs into a format</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=451s" target="_blank" rel="noopener">07:31</a> that models can understand automatically.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=454s" target="_blank" rel="noopener">07:34</a> So instead of saying MCP versus API, it&#39;s more like MCP</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=460s" target="_blank" rel="noopener">07:40</a> on top of APIs.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=461s" target="_blank" rel="noopener">07:41</a> This distinction is key.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=464s" target="_blank" rel="noopener">07:44</a> MCP doesn&#39;t compete with APIs.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=467s" target="_blank" rel="noopener">07:47</a> It actually leverages them, but it changes</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=470s" target="_blank" rel="noopener">07:50</a> who the client is with API.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=472s" target="_blank" rel="noopener">07:52</a> The client is another program or user with MCP,</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=477s" target="_blank" rel="noopener">07:57</a> the client is the model itself.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=479s" target="_blank" rel="noopener">07:59</a> And that subtle difference changes</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=481s" target="_blank" rel="noopener">08:01</a> everything about how we design integrations.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=485s" target="_blank" rel="noopener">08:05</a> Let&#39;s Zoom out for a bit.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=486s" target="_blank" rel="noopener">08:06</a> The rise of MCP is part of a bigger</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=489s" target="_blank" rel="noopener">08:09</a> movement towards model native software architecture.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=493s" target="_blank" rel="noopener">08:13</a> For decades, we&#39;ve built systems for humans and for code.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=497s" target="_blank" rel="noopener">08:17</a> Now we&#39;re building systems for models and models</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=500s" target="_blank" rel="noopener">08:20</a> don&#39;t consume REST endpoints the way code does.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=504s" target="_blank" rel="noopener">08:24</a> They consume context, which includes</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=506s" target="_blank" rel="noopener">08:26</a> structured descriptions, schemas, and examples.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=510s" target="_blank" rel="noopener">08:30</a> They do this so that they can reason, plan and act.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=513s" target="_blank" rel="noopener">08:33</a> So MCP gives them that in a standardized way.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=517s" target="_blank" rel="noopener">08:37</a> That&#39;s why developers building agent frameworks</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=519s" target="_blank" rel="noopener">08:39</a> are moving in this direction.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=521s" target="_blank" rel="noopener">08:41</a> They&#39;re realizing that connecting</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=523s" target="_blank" rel="noopener">08:43</a> a model to a world of tools isn&#39;t about a bigger context</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=526s" target="_blank" rel="noopener">08:46</a> window.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=527s" target="_blank" rel="noopener">08:47</a> It&#39;s about cleaner protocols.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=529s" target="_blank" rel="noopener">08:49</a> And let&#39;s be honest, it&#39;s not all magic.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=532s" target="_blank" rel="noopener">08:52</a> MCP is still pretty new.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=534s" target="_blank" rel="noopener">08:54</a> The biggest challenge right now is adoption.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=536s" target="_blank" rel="noopener">08:56</a> For MCP to truly work, the ecosystem</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=539s" target="_blank" rel="noopener">08:59</a> needs servers, clients, and tools</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=542s" target="_blank" rel="noopener">09:02</a> to agree on the same standard.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=544s" target="_blank" rel="noopener">09:04</a> Another huge challenge is security and control.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=548s" target="_blank" rel="noopener">09:08</a> When models can directly call tools through a protocol,</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=552s" target="_blank" rel="noopener">09:12</a> you need clear permission layers.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=554s" target="_blank" rel="noopener">09:14</a> You don&#39;t want a model accidentally sending an email,</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=557s" target="_blank" rel="noopener">09:17</a> deleting a file or making a huge database change</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=560s" target="_blank" rel="noopener">09:20</a> that it wasn&#39;t supposed to.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=562s" target="_blank" rel="noopener">09:22</a> APIs handle that through authentication keys and rate</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=566s" target="_blank" rel="noopener">09:26</a> limits.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=567s" target="_blank" rel="noopener">09:27</a> MCP needs to bring those guardrails</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=570s" target="_blank" rel="noopener">09:30</a> into its protocol layer, which is already happening.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=573s" target="_blank" rel="noopener">09:33</a> The spec defines capabilities, scopes, and authentication</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=577s" target="_blank" rel="noopener">09:37</a> methods that keep things safe.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=580s" target="_blank" rel="noopener">09:40</a> But it&#39;s still early days, and the final challenge</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=584s" target="_blank" rel="noopener">09:44</a> is the developer mindset.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=585s" target="_blank" rel="noopener">09:45</a> Most of us grew up in an API world.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=588s" target="_blank" rel="noopener">09:48</a> We think in terms of endpoints and routes.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=591s" target="_blank" rel="noopener">09:51</a> MCP asks us to think in terms of capabilities and context</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=596s" target="_blank" rel="noopener">09:56</a> to design systems that describe what they can do,</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=599s" target="_blank" rel="noopener">09:59</a> not just how to do it.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=601s" target="_blank" rel="noopener">10:01</a> That&#39;s a huge paradigm shift, but it&#39;s worth learning early.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=605s" target="_blank" rel="noopener">10:05</a> Here&#39;s where it all comes together.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=607s" target="_blank" rel="noopener">10:07</a> Think about the moment when HTTP unified the internet.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=611s" target="_blank" rel="noopener">10:11</a> Before that, every service had its own protocol</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=615s" target="_blank" rel="noopener">10:15</a> from FTP, Gopher, Telnet, which are all different internet</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=619s" target="_blank" rel="noopener">10:19</a> protocols.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=620s" target="_blank" rel="noopener">10:20</a> Once the web standardized on HTTP, suddenly</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=624s" target="_blank" rel="noopener">10:24</a> everything became interoperable.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=626s" target="_blank" rel="noopener">10:26</a> MCP is doing the same thing for AI agents.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=630s" target="_blank" rel="noopener">10:30</a> Instead of each company inventing its own plugin format</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=633s" target="_blank" rel="noopener">10:33</a> or integration layer, MCP provides a single open protocol</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=638s" target="_blank" rel="noopener">10:38</a> that any model can understand.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=640s" target="_blank" rel="noopener">10:40</a> You build your connector once and any compliant model</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=643s" target="_blank" rel="noopener">10:43</a> can use it.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=644s" target="_blank" rel="noopener">10:44</a> That means the future of AI tools</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=646s" target="_blank" rel="noopener">10:46</a> will look less like custom integrations</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=649s" target="_blank" rel="noopener">10:49</a> and more like a shared ecosystem.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=651s" target="_blank" rel="noopener">10:51</a> You will have an MCP server for your product and any AI</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=656s" target="_blank" rel="noopener">10:56</a> like Gemini Claude GPT can use it instantly.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=661s" target="_blank" rel="noopener">11:01</a> That&#39;s the world we&#39;re heading towards,</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=662s" target="_blank" rel="noopener">11:02</a> one where models, not just humans, become</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=665s" target="_blank" rel="noopener">11:05</a> first class users of software.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=668s" target="_blank" rel="noopener">11:08</a> So to sum it all up APIs are not dead.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=671s" target="_blank" rel="noopener">11:11</a> They are just evolving.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=673s" target="_blank" rel="noopener">11:13</a> APIs were made for deterministic systems.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=676s" target="_blank" rel="noopener">11:16</a> One program asking another for data,</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=678s" target="_blank" rel="noopener">11:18</a> and MCP is made for probabilistic realistic systems,</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=682s" target="_blank" rel="noopener">11:22</a> a model reasoning about what it can do.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=685s" target="_blank" rel="noopener">11:25</a> So the next time someone says MCP versus API, just remember</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=690s" target="_blank" rel="noopener">11:30</a> it&#39;s not a direct comparison.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=692s" target="_blank" rel="noopener">11:32</a> It&#39;s a foundation being rebuilt. MCP sits one layer above APIs</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=697s" target="_blank" rel="noopener">11:37</a> and turning them from static routes into living interfaces</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=702s" target="_blank" rel="noopener">11:42</a> that models can actually reason about.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=704s" target="_blank" rel="noopener">11:44</a> And as more frameworks adopt it, you&#39;ll</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=707s" target="_blank" rel="noopener">11:47</a> start seeing a new pattern emerge.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=709s" target="_blank" rel="noopener">11:49</a> Instead of hard coded integrations,</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=711s" target="_blank" rel="noopener">11:51</a> we&#39;ll build model aware systems where</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=713s" target="_blank" rel="noopener">11:53</a> context, tools, and reasoning can all live in harmony.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=718s" target="_blank" rel="noopener">11:58</a> I hope this video was helpful in explaining the differences</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=720s" target="_blank" rel="noopener">12:00</a> between MYC and APIs.</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=723s" target="_blank" rel="noopener">12:03</a> To learn more about the model context</li>
+<li><a href="https://www.youtube.com/watch?v=185XGEMefgc&amp;t=725s" target="_blank" rel="noopener">12:05</a> protocol at a deeper level, check out this next video.</li>
+</ul></section>
+</article>
+<footer class="attribution">Captured with <a href="https://github.com/vkotian-King/100DaysofCodeHereVineet" target="_blank" rel="noopener">YouTube Transcript Vault</a> — a free, local-first way to build your own learning journal.</footer>
+</body>
+</html>

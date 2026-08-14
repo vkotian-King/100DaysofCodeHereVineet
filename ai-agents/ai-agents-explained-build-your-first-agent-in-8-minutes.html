@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AI agents explained: Build your first agent in 8 minutes</title>
+<link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+<a class="back-link" href="../index.html">&larr; All topics</a>
+<article>
+<h1>AI agents explained: Build your first agent in 8 minutes</h1>
+<p class="meta">Google Cloud Tech &middot; <a href="https://www.youtube.com/watch?v=Zqno_vux6d8" target="_blank" rel="noopener">Watch on YouTube</a> &middot; captured 2026-08-14</p>
+
+<section><h2>Transcript</h2><ul class="transcript">
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=4s" target="_blank" rel="noopener">00:04</a> In this video, you&#39;re going to learn</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=6s" target="_blank" rel="noopener">00:06</a> what AI agents are not just in theory, but in practice.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=10s" target="_blank" rel="noopener">00:10</a> We&#39;ll look at the ideas behind modern agents,</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=12s" target="_blank" rel="noopener">00:12</a> and then we&#39;ll build your very first AI agent step</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=16s" target="_blank" rel="noopener">00:16</a> by step using Google&#39;s SDK.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=18s" target="_blank" rel="noopener">00:18</a> By the end, you&#39;ll understand how agents reason,</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=21s" target="_blank" rel="noopener">00:21</a> act and adapt, and you&#39;ll have code that you can actually</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=24s" target="_blank" rel="noopener">00:24</a> run yourself.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=25s" target="_blank" rel="noopener">00:25</a> So what are AI agents.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=27s" target="_blank" rel="noopener">00:27</a> At the simplest level, an agent is</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=29s" target="_blank" rel="noopener">00:29</a> software that doesn&#39;t just answer,</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=31s" target="_blank" rel="noopener">00:31</a> it can decide and take action.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=33s" target="_blank" rel="noopener">00:33</a> Instead of generating a single response</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=35s" target="_blank" rel="noopener">00:35</a> like a traditional chatbot, it looks</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=37s" target="_blank" rel="noopener">00:37</a> at your request, figures out what steps need to be taken,</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=41s" target="_blank" rel="noopener">00:41</a> maybe calls an API, runs code, looks at the results,</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=44s" target="_blank" rel="noopener">00:44</a> and then decides what to do next.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=46s" target="_blank" rel="noopener">00:46</a> One of the clearest explanations comes from the research paper</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=50s" target="_blank" rel="noopener">00:50</a> React synergizing reasoning and acting in language models.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=55s" target="_blank" rel="noopener">00:55</a> The idea in that paper was simple but powerful.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=58s" target="_blank" rel="noopener">00:58</a> Language models shouldn&#39;t just generate text in one go.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=61s" target="_blank" rel="noopener">01:01</a> They can actually reason step by step.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=64s" target="_blank" rel="noopener">01:04</a> Take an action like calling a tool or API.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=66s" target="_blank" rel="noopener">01:06</a> Observe the results and then decide what to do next.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=69s" target="_blank" rel="noopener">01:09</a> That cycle of reasoning, acting, observing, and adjusting</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=74s" target="_blank" rel="noopener">01:14</a> is the foundation of how modern AI agents work, and it</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=78s" target="_blank" rel="noopener">01:18</a> lines up with how it&#39;s defined.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=80s" target="_blank" rel="noopener">01:20</a> Systems with reasoning, planning, and memory</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=83s" target="_blank" rel="noopener">01:23</a> with enough autonomy to adapt and make decisions</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=87s" target="_blank" rel="noopener">01:27</a> on behalf of the user.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=88s" target="_blank" rel="noopener">01:28</a> Now, not all agents behave the same way.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=91s" target="_blank" rel="noopener">01:31</a> A useful way to think about them is in three broad patterns.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=95s" target="_blank" rel="noopener">01:35</a> First, we have sequential agents.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=97s" target="_blank" rel="noopener">01:37</a> These run step by step like an assembly line.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=100s" target="_blank" rel="noopener">01:40</a> Step one, then step 2, then step three.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=103s" target="_blank" rel="noopener">01:43</a> They&#39;re predictable but rigid.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=104s" target="_blank" rel="noopener">01:44</a> Second, we have reactive agents.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=106s" target="_blank" rel="noopener">01:46</a> These decide in the moment.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=108s" target="_blank" rel="noopener">01:48</a> They look at the current state and ask, what should I do next.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=110s" target="_blank" rel="noopener">01:50</a> Maybe tool a one time tool B the next.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=113s" target="_blank" rel="noopener">01:53</a> They&#39;re flexible, but they don&#39;t plan ahead.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=115s" target="_blank" rel="noopener">01:55</a> Lastly, we have deliberate or planning agents.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=118s" target="_blank" rel="noopener">01:58</a> These pause to sketch a plan then execute.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=122s" target="_blank" rel="noopener">02:02</a> Think about booking travel.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=123s" target="_blank" rel="noopener">02:03</a> You don&#39;t just buy a flight randomly.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=125s" target="_blank" rel="noopener">02:05</a> You pick dates, hotels and then that&#39;s the order of steps</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=128s" target="_blank" rel="noopener">02:08</a> that you follow through.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=129s" target="_blank" rel="noopener">02:09</a> So which of these is the right one for you.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=132s" target="_blank" rel="noopener">02:12</a> It depends on the problem.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=133s" target="_blank" rel="noopener">02:13</a> For simple, predictable flows, sequential</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=136s" target="_blank" rel="noopener">02:16</a> is fine for dynamic, reactive works better.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=139s" target="_blank" rel="noopener">02:19</a> And for multi-step goals with dependencies</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=142s" target="_blank" rel="noopener">02:22</a> you want planning agents.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=144s" target="_blank" rel="noopener">02:24</a> OK, that&#39;s the high level view.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=145s" target="_blank" rel="noopener">02:25</a> Now let&#39;s actually build an agent.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=147s" target="_blank" rel="noopener">02:27</a> So you can see these ideas in action.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=150s" target="_blank" rel="noopener">02:30</a> We&#39;ll build a blog writing agent.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=152s" target="_blank" rel="noopener">02:32</a> You give it a topic, it will generate a structured outline,</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=155s" target="_blank" rel="noopener">02:35</a> turn that outline into a full blog post,</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=158s" target="_blank" rel="noopener">02:38</a> and then suggest the alternative titles and hooks.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=161s" target="_blank" rel="noopener">02:41</a> This is where ADCs categories comes in</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=163s" target="_blank" rel="noopener">02:43</a> as we walk through the code, notice how the planner</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=166s" target="_blank" rel="noopener">02:46</a> and writer agent are LLM agents which are powered by a model.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=171s" target="_blank" rel="noopener">02:51</a> They are wrapped in loop agents, which</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=173s" target="_blank" rel="noopener">02:53</a> are workflow agents in CDK.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=175s" target="_blank" rel="noopener">02:55</a> These handle retries automatically</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=177s" target="_blank" rel="noopener">02:57</a> if validation fails, and if we ever wanted something</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=181s" target="_blank" rel="noopener">03:01</a> beyond that, a.d.k would also let us extend a custom agent</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=185s" target="_blank" rel="noopener">03:05</a> by subclassing the base agent.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=188s" target="_blank" rel="noopener">03:08</a> So let&#39;s set up the environment and then go line by line</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=190s" target="_blank" rel="noopener">03:10</a> through the code.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=191s" target="_blank" rel="noopener">03:11</a> First off, you need to install UV.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=193s" target="_blank" rel="noopener">03:13</a> You can do that by running the command right here.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=196s" target="_blank" rel="noopener">03:16</a> Secondly, you need to install Google ADK because we need</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=199s" target="_blank" rel="noopener">03:19</a> to obviously use ADK in this.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=201s" target="_blank" rel="noopener">03:21</a> And then let&#39;s create a file called agent in your Ide.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=206s" target="_blank" rel="noopener">03:26</a> We need to import these key libraries.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=208s" target="_blank" rel="noopener">03:28</a> And then we can start building out our very first agent.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=212s" target="_blank" rel="noopener">03:32</a> So the first agent that we&#39;re building out</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=213s" target="_blank" rel="noopener">03:33</a> is called the blog planner.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=216s" target="_blank" rel="noopener">03:36</a> Its only job is to take a topic and turn it</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=218s" target="_blank" rel="noopener">03:38</a> into a structured outline.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=220s" target="_blank" rel="noopener">03:40</a> We give it the name blog planner so it&#39;s easy to identify,</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=224s" target="_blank" rel="noopener">03:44</a> and we tell it which model to use,</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=226s" target="_blank" rel="noopener">03:46</a> which comes from our environment file.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=228s" target="_blank" rel="noopener">03:48</a> The description is just a human readable note.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=231s" target="_blank" rel="noopener">03:51</a> The important part of the introduction is here.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=233s" target="_blank" rel="noopener">03:53</a> We actually tell it what to produce,</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=235s" target="_blank" rel="noopener">03:55</a> which is a markdown outline with a title, a short introduction,</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=239s" target="_blank" rel="noopener">03:59</a> four to six sections with bullet points, and a conclusion.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=242s" target="_blank" rel="noopener">04:02</a> By spelling that out, we make the output much more reliable.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=247s" target="_blank" rel="noopener">04:07</a> Finally, look at the output key.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=249s" target="_blank" rel="noopener">04:09</a> We set it to blog outline.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=251s" target="_blank" rel="noopener">04:11</a> This means whatever this agent writes</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=254s" target="_blank" rel="noopener">04:14</a> rights will be stored in shared state under that name,</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=257s" target="_blank" rel="noopener">04:17</a> so that the next agent that can pick it up</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=259s" target="_blank" rel="noopener">04:19</a> can do it automatically.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=261s" target="_blank" rel="noopener">04:21</a> Next, we add a second agent.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=263s" target="_blank" rel="noopener">04:23</a> The outline validation checker.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=265s" target="_blank" rel="noopener">04:25</a> This one doesn&#39;t write anything new.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=267s" target="_blank" rel="noopener">04:27</a> It just checks the outline.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=268s" target="_blank" rel="noopener">04:28</a> Its instruction is strict.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=270s" target="_blank" rel="noopener">04:30</a> If the outline in state has a title, an intro,</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=273s" target="_blank" rel="noopener">04:33</a> four to six sections, and a conclusion,</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=276s" target="_blank" rel="noopener">04:36</a> it must answer with the word OK.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=278s" target="_blank" rel="noopener">04:38</a> If something is missing, it must answer with the word retry</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=282s" target="_blank" rel="noopener">04:42</a> and explain what&#39;s wrong.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=283s" target="_blank" rel="noopener">04:43</a> That way, we can automatically decide</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=285s" target="_blank" rel="noopener">04:45</a> whether to accept the outline or try again</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=288s" target="_blank" rel="noopener">04:48</a> to connect the planner and the checker.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=290s" target="_blank" rel="noopener">04:50</a> We&#39;ve wrapped them inside a loop agent called robust blog</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=294s" target="_blank" rel="noopener">04:54</a> planner.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=295s" target="_blank" rel="noopener">04:55</a> The loop first runs the planner, then the checker.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=298s" target="_blank" rel="noopener">04:58</a> If the checker says OK, we&#39;re done.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=300s" target="_blank" rel="noopener">05:00</a> If the checker says retry, the loop runs the planner again</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=304s" target="_blank" rel="noopener">05:04</a> with the same instructions.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=305s" target="_blank" rel="noopener">05:05</a> It can do this up to three times.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=307s" target="_blank" rel="noopener">05:07</a> This gives us a safety net.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=309s" target="_blank" rel="noopener">05:09</a> So if the model forgets something,</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=310s" target="_blank" rel="noopener">05:10</a> it has another chance to get it right.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=313s" target="_blank" rel="noopener">05:13</a> Now we create another agent called blog writer.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=316s" target="_blank" rel="noopener">05:16</a> This one takes the outline we just saved in blog outline</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=319s" target="_blank" rel="noopener">05:19</a> and turns it into a full markdown blog post.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=322s" target="_blank" rel="noopener">05:22</a> The instruction tells it how to write.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=325s" target="_blank" rel="noopener">05:25</a> It should assume the audience is software engineers.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=328s" target="_blank" rel="noopener">05:28</a> Skip the basics and focus on practical insights.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=331s" target="_blank" rel="noopener">05:31</a> Explain both how and the why and include short code snippets</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=336s" target="_blank" rel="noopener">05:36</a> where helpful.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=337s" target="_blank" rel="noopener">05:37</a> It should also follow the structure of the outline</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=339s" target="_blank" rel="noopener">05:39</a> with proper headings.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=340s" target="_blank" rel="noopener">05:40</a> The finished draft is saved under blog post in shared state.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=345s" target="_blank" rel="noopener">05:45</a> Ready for the next step.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=346s" target="_blank" rel="noopener">05:46</a> Next up, we&#39;re going to add another checker,</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=349s" target="_blank" rel="noopener">05:49</a> this time for the post.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=350s" target="_blank" rel="noopener">05:50</a> It&#39;s called blog post validation checker.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=353s" target="_blank" rel="noopener">05:53</a> It looks at blog post and checks if the article has</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=357s" target="_blank" rel="noopener">05:57</a> an introduction as sections that match the outline, a conclusion,</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=361s" target="_blank" rel="noopener">06:01</a> and clear explanations.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=363s" target="_blank" rel="noopener">06:03</a> If it passes, the checker says OK.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=366s" target="_blank" rel="noopener">06:06</a> If not, it says retry and list the fixes which are needed.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=370s" target="_blank" rel="noopener">06:10</a> Just like with planning, we combine the writer</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=372s" target="_blank" rel="noopener">06:12</a> and its checker into a loop agent called robust blog writer.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=378s" target="_blank" rel="noopener">06:18</a> This makes the system automatically</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=379s" target="_blank" rel="noopener">06:19</a> retry the writing step until the validation passes.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=383s" target="_blank" rel="noopener">06:23</a> Up to three times.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=384s" target="_blank" rel="noopener">06:24</a> Now we wrap each loop, the robust block planner</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=389s" target="_blank" rel="noopener">06:29</a> and the robust block writer as tools.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=392s" target="_blank" rel="noopener">06:32</a> This is what lets the root agent call them directly</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=395s" target="_blank" rel="noopener">06:35</a> without worrying about what&#39;s happening inside.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=397s" target="_blank" rel="noopener">06:37</a> Finally, we put it all together with the root agent</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=400s" target="_blank" rel="noopener">06:40</a> called blogger.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=401s" target="_blank" rel="noopener">06:41</a> The instructions for blogger are simple.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=404s" target="_blank" rel="noopener">06:44</a> When a user gives it a topic first</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=406s" target="_blank" rel="noopener">06:46</a> it calls the planner tool to make an outline.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=409s" target="_blank" rel="noopener">06:49</a> Then it calls the writer tool to draft the full post.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=412s" target="_blank" rel="noopener">06:52</a> And finally it adds three alternative titles</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=416s" target="_blank" rel="noopener">06:56</a> and two tweet length hooks.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=418s" target="_blank" rel="noopener">06:58</a> The root agent only has access to the two tools.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=422s" target="_blank" rel="noopener">07:02</a> We exposed the planner and the writer.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=425s" target="_blank" rel="noopener">07:05</a> So its workflow is clear and controlled.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=428s" target="_blank" rel="noopener">07:08</a> You give it a topic, it plans, it writes, it checks,</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=432s" target="_blank" rel="noopener">07:12</a> and then it gives you a polished blog post.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=435s" target="_blank" rel="noopener">07:15</a> You&#39;ve now successfully written your first agent script.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=438s" target="_blank" rel="noopener">07:18</a> The next step is to actually run it.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=440s" target="_blank" rel="noopener">07:20</a> Head into your terminal and launch it using this command</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=444s" target="_blank" rel="noopener">07:24</a> with ADK web so you can view everything inside a simple UI.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=448s" target="_blank" rel="noopener">07:28</a> Once that&#39;s running, open the local ADK web link</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=451s" target="_blank" rel="noopener">07:31</a> in your browser and start interacting with the agent</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=454s" target="_blank" rel="noopener">07:34</a> directly.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=455s" target="_blank" rel="noopener">07:35</a> To kick things off, I&#39;m going to ask</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=457s" target="_blank" rel="noopener">07:37</a> it to generate a blog on the top 10 use cases for AI agents.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=461s" target="_blank" rel="noopener">07:41</a> Let&#39;s see how it plans, writes, and delivers the results.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=465s" target="_blank" rel="noopener">07:45</a> Your subagents will then work together to create a blog post.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=469s" target="_blank" rel="noopener">07:49</a> And that&#39;s it.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=470s" target="_blank" rel="noopener">07:50</a> You&#39;ve built and run your first AI agent with Google&#39;s SDK.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=474s" target="_blank" rel="noopener">07:54</a> We&#39;ve started from the idea of what agents are, then walk</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=478s" target="_blank" rel="noopener">07:58</a> through the code step by step and finally saw</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=481s" target="_blank" rel="noopener">08:01</a> it come to life in terminal.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=482s" target="_blank" rel="noopener">08:02</a> Thank you for watching.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=483s" target="_blank" rel="noopener">08:03</a> Check out the description box for all the resources and code</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=486s" target="_blank" rel="noopener">08:06</a> mentioned in this video.</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=488s" target="_blank" rel="noopener">08:08</a> Check out this next video to learn how to connect your AI</li>
+<li><a href="https://www.youtube.com/watch?v=Zqno_vux6d8&amp;t=491s" target="_blank" rel="noopener">08:11</a> agent to an MCP server.</li>
+</ul></section>
+</article>
+<footer class="attribution">Captured with <a href="https://github.com/vkotian-King/100DaysofCodeHereVineet" target="_blank" rel="noopener">YouTube Transcript Vault</a> — a free, local-first way to build your own learning journal.</footer>
+</body>
+</html>
