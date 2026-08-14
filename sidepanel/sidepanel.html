@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Transcript Vault</title>
+<link rel="stylesheet" href="sidepanel.css" />
+</head>
+<body>
+  <h1>YouTube Transcript Vault</h1>
+
+  <section id="vaultSection">
+    <div id="vaultStatus">Checking vault access…</div>
+    <button id="selectVaultBtn" hidden>Select Vault Folder</button>
+    <button id="regrantBtn" hidden>Re-grant Vault Access</button>
+  </section>
+
+  <section id="captureSection" hidden>
+    <button id="captureBtn">Capture Transcript from Current Tab</button>
+    <div id="captureStatus"></div>
+
+    <div id="previewArea" hidden>
+      <div id="previewTitle"></div>
+      <div id="previewMeta"></div>
+
+      <label for="topicInput">Topic folder</label>
+      <input id="topicInput" list="topicOptions" placeholder="Existing topic or new topic name" autocomplete="off" />
+      <datalist id="topicOptions"></datalist>
+
+      <button id="saveBtn">Save to Vault</button>
+    </div>
+  </section>
+
+  <div id="toast" hidden></div>
+
+  <script type="module" src="sidepanel.js"></script>
+</body>
+</html>

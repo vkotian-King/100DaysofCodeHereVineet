@@ -1,0 +1,10 @@
+{
+  "name": "youtube-transcript-vault",
+  "version": "0.1.0",
+  "description": "Chrome extension that captures a YouTube video's transcript into a Markdown note in a local topic folder. No AI, no server, no token cost.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.js"
+  }
+}

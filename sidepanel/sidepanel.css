@@ -1,0 +1,81 @@
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 13px;
+  margin: 0;
+  padding: 12px;
+  color: #1b1b1b;
+}
+
+h1 {
+  font-size: 15px;
+  margin: 0 0 12px;
+}
+
+section {
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e2e2e2;
+}
+
+button {
+  display: inline-block;
+  margin: 4px 0;
+  padding: 6px 10px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+label {
+  display: block;
+  margin-top: 8px;
+  font-weight: 600;
+}
+
+input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 5px 6px;
+  margin-top: 4px;
+  font-size: 13px;
+}
+
+#vaultStatus, #captureStatus {
+  margin-bottom: 6px;
+  color: #444;
+}
+
+#previewArea {
+  margin-top: 10px;
+  padding: 8px;
+  background: #f6f6f6;
+  border-radius: 4px;
+}
+
+#previewTitle {
+  font-weight: 600;
+}
+
+#previewMeta {
+  color: #555;
+  margin-bottom: 6px;
+}
+
+#toast {
+  position: fixed;
+  bottom: 10px;
+  left: 12px;
+  right: 12px;
+  padding: 8px 10px;
+  border-radius: 4px;
+  background: #1f4e9e;
+  color: white;
+}
+
+#toast.error {
+  background: #b02525;
+}
+
+.hint {
+  color: #777;
+  font-size: 12px;
+}
