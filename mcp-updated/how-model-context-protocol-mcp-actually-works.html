@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>How Model Context Protocol (MCP) actually works</title>
+<link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+<a class="back-link" href="../index.html">&larr; All topics</a>
+<article>
+<h1>How Model Context Protocol (MCP) actually works</h1>
+<p class="meta">Google Cloud Tech &middot; <a href="https://www.youtube.com/watch?v=cGuyrANVi4A" target="_blank" rel="noopener">Watch on YouTube</a> &middot; captured 2026-08-14</p>
+
+<section><h2>Transcript</h2><ul class="transcript">
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=4s" target="_blank" rel="noopener">00:04</a> If you&#39;ve ever tried to make an AI model, talk to your tools</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=8s" target="_blank" rel="noopener">00:08</a> or your data, you&#39;ve probably realized something.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=11s" target="_blank" rel="noopener">00:11</a> It&#39;s messy.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=12s" target="_blank" rel="noopener">00:12</a> Every API behaves differently, every integration</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=15s" target="_blank" rel="noopener">00:15</a> needs custom code, and every time the model changes,</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=19s" target="_blank" rel="noopener">00:19</a> your connection breaks.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=20s" target="_blank" rel="noopener">00:20</a> The model context protocol, or MCP,</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=23s" target="_blank" rel="noopener">00:23</a> was created to fix exactly that.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=25s" target="_blank" rel="noopener">00:25</a> By the end of this video, you&#39;ll understand</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=27s" target="_blank" rel="noopener">00:27</a> what the model context protocol actually is, why it exists,</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=32s" target="_blank" rel="noopener">00:32</a> and how it&#39;s changing the way models interact with the world.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=36s" target="_blank" rel="noopener">00:36</a> We&#39;ll walk through the core ideas step by step,</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=39s" target="_blank" rel="noopener">00:39</a> see how it compares to traditional APIs,</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=42s" target="_blank" rel="noopener">00:42</a> and talk about what this means for developers, building agents,</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=45s" target="_blank" rel="noopener">00:45</a> or AI powered applications.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=48s" target="_blank" rel="noopener">00:48</a> So what is the model context protocol.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=51s" target="_blank" rel="noopener">00:51</a> At its core, MCP is an open standard</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=54s" target="_blank" rel="noopener">00:54</a> for connecting models to tools, data, and context</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=58s" target="_blank" rel="noopener">00:58</a> in a really consistent and structured way.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=60s" target="_blank" rel="noopener">01:00</a> You can think of it as a shared language between models</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=63s" target="_blank" rel="noopener">01:03</a> and the systems around them.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=65s" target="_blank" rel="noopener">01:05</a> It defines how a model can discover available tools,</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=69s" target="_blank" rel="noopener">01:09</a> ask for information, and perform actions</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=72s" target="_blank" rel="noopener">01:12</a> without having to know the specific implementation</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=74s" target="_blank" rel="noopener">01:14</a> details behind each one.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=76s" target="_blank" rel="noopener">01:16</a> This protocol was introduced by Anthropic</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=79s" target="_blank" rel="noopener">01:19</a> and is now being adopted across the industry</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=82s" target="_blank" rel="noopener">01:22</a> because it solves one of the biggest pain</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=83s" target="_blank" rel="noopener">01:23</a> points in AI development today.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=86s" target="_blank" rel="noopener">01:26</a> How to make models use external resources safely and reliably.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=91s" target="_blank" rel="noopener">01:31</a> So here&#39;s why that matters.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=93s" target="_blank" rel="noopener">01:33</a> APIs were never designed for AI models.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=96s" target="_blank" rel="noopener">01:36</a> They were designed for programs that already</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=99s" target="_blank" rel="noopener">01:39</a> know exactly what they want, programs</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=101s" target="_blank" rel="noopener">01:41</a> that can form precise, deterministic requests.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=105s" target="_blank" rel="noopener">01:45</a> A language model doesn&#39;t work that way.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=107s" target="_blank" rel="noopener">01:47</a> It generates text probabilistically.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=110s" target="_blank" rel="noopener">01:50</a> It reasons about uncertain inputs</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=112s" target="_blank" rel="noopener">01:52</a> and often needs to ask questions, clarify or explore</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=117s" target="_blank" rel="noopener">01:57</a> before it knows what to do.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=119s" target="_blank" rel="noopener">01:59</a> MCP bridges that gap.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=120s" target="_blank" rel="noopener">02:00</a> It gives models a structured way to discover and describe</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=124s" target="_blank" rel="noopener">02:04</a> the resources they can use.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=126s" target="_blank" rel="noopener">02:06</a> So things like functions, data sets, documents or prompts</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=130s" target="_blank" rel="noopener">02:10</a> are all available through a consistent interface.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=134s" target="_blank" rel="noopener">02:14</a> Instead of hard coding every integration,</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=136s" target="_blank" rel="noopener">02:16</a> the model can now dynamically query</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=139s" target="_blank" rel="noopener">02:19</a> what&#39;s available, use it, and even</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=141s" target="_blank" rel="noopener">02:21</a> chain multiple tools together, so all</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=144s" target="_blank" rel="noopener">02:24</a> while staying within a safe, standardized framework</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=147s" target="_blank" rel="noopener">02:27</a> to understand how MCP actually works,</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=150s" target="_blank" rel="noopener">02:30</a> let&#39;s unpack the main idea.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=152s" target="_blank" rel="noopener">02:32</a> The protocol defines two sides clients and servers.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=156s" target="_blank" rel="noopener">02:36</a> The client is usually the language model</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=159s" target="_blank" rel="noopener">02:39</a> or the agent system that wants to perform a task, something</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=164s" target="_blank" rel="noopener">02:44</a> like Cloud, Gemini app or an agent built on top of OpenAI</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=168s" target="_blank" rel="noopener">02:48</a> or Google&#39;s frameworks.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=169s" target="_blank" rel="noopener">02:49</a> The server is the environment that exposes resources</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=173s" target="_blank" rel="noopener">02:53</a> that the model can use a database, a file</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=176s" target="_blank" rel="noopener">02:56</a> system, a company&#39;s internal tools or even a document search</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=181s" target="_blank" rel="noopener">03:01</a> engine.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=182s" target="_blank" rel="noopener">03:02</a> When the client connects to the server,</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=184s" target="_blank" rel="noopener">03:04</a> the server doesn&#39;t just respond with data.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=187s" target="_blank" rel="noopener">03:07</a> Instead, it advertises what capabilities</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=189s" target="_blank" rel="noopener">03:09</a> it supports, what resources exist,</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=193s" target="_blank" rel="noopener">03:13</a> what actions can be taken, and what inputs are required.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=197s" target="_blank" rel="noopener">03:17</a> This means the model doesn&#39;t need</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=199s" target="_blank" rel="noopener">03:19</a> to be pre-programmed with every API or every endpoint.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=203s" target="_blank" rel="noopener">03:23</a> It can dynamically discover them.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=205s" target="_blank" rel="noopener">03:25</a> The communication between these two sides</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=208s" target="_blank" rel="noopener">03:28</a> happens through a really simple and well-defined schema.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=211s" target="_blank" rel="noopener">03:31</a> The client sends requests like list available resources,</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=216s" target="_blank" rel="noopener">03:36</a> call this action, or retrieve this data.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=218s" target="_blank" rel="noopener">03:38</a> The server then responds with a structured JSON</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=221s" target="_blank" rel="noopener">03:41</a> describing what&#39;s possible and what happened.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=224s" target="_blank" rel="noopener">03:44</a> That&#39;s the essence of MCP, a standardized way for models</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=228s" target="_blank" rel="noopener">03:48</a> to talk to their environment.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=230s" target="_blank" rel="noopener">03:50</a> Now let&#39;s go a bit deeper.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=231s" target="_blank" rel="noopener">03:51</a> Technically, the MCP protocol defines a few main resource</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=235s" target="_blank" rel="noopener">03:55</a> types tools, prompts, resources, and context that together form</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=240s" target="_blank" rel="noopener">04:00</a> what the model can see and use.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=242s" target="_blank" rel="noopener">04:02</a> Tools are actions that the model can invoke.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=245s" target="_blank" rel="noopener">04:05</a> For example, a tool could be a search database,</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=250s" target="_blank" rel="noopener">04:10</a> send email, or even analyze a file.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=252s" target="_blank" rel="noopener">04:12</a> Resources are pieces of data and state</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=255s" target="_blank" rel="noopener">04:15</a> like a text document or database role, or even an image.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=259s" target="_blank" rel="noopener">04:19</a> Prompts are reusable templates that</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=261s" target="_blank" rel="noopener">04:21</a> describe how the model should behave for specific tasks,</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=265s" target="_blank" rel="noopener">04:25</a> and context represents external information</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=268s" target="_blank" rel="noopener">04:28</a> that the model can pull into its reasoning process.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=271s" target="_blank" rel="noopener">04:31</a> Things like recent chat history, company data,</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=274s" target="_blank" rel="noopener">04:34</a> or user preferences.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=276s" target="_blank" rel="noopener">04:36</a> When an MCP client connects, it can</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=278s" target="_blank" rel="noopener">04:38</a> request a list of all of these things from the server.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=282s" target="_blank" rel="noopener">04:42</a> Each tool or resource comes with metadata</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=285s" target="_blank" rel="noopener">04:45</a> that describes what it does, what input it expects,</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=288s" target="_blank" rel="noopener">04:48</a> and what output it returns.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=290s" target="_blank" rel="noopener">04:50</a> This allows models to interact intelligently.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=293s" target="_blank" rel="noopener">04:53</a> The protocol enforces a consistent schema</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=296s" target="_blank" rel="noopener">04:56</a> across all tools.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=298s" target="_blank" rel="noopener">04:58</a> So whether the model is using a GitHub server, a CRM</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=302s" target="_blank" rel="noopener">05:02</a> server or a calendar server, it speaks the same language.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=306s" target="_blank" rel="noopener">05:06</a> Now let&#39;s address the big question.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=309s" target="_blank" rel="noopener">05:09</a> If we already have APIs, why do we need MCP at all.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=314s" target="_blank" rel="noopener">05:14</a> The answer comes down to who the consumer is.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=317s" target="_blank" rel="noopener">05:17</a> APIs were designed for programs written by humans.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=321s" target="_blank" rel="noopener">05:21</a> MCP is designed for models that reason like humans.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=324s" target="_blank" rel="noopener">05:24</a> You can think of MCP as an abstraction above APIs.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=329s" target="_blank" rel="noopener">05:29</a> APIs still exist.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=330s" target="_blank" rel="noopener">05:30</a> MCP just makes them model friendly.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=333s" target="_blank" rel="noopener">05:33</a> Under the hood, your MCP server might still</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=336s" target="_blank" rel="noopener">05:36</a> call your existing REST or GraphQL APIs,</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=340s" target="_blank" rel="noopener">05:40</a> but the model never sees that it only</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=342s" target="_blank" rel="noopener">05:42</a> interacts through the structured MCP schema, which</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=346s" target="_blank" rel="noopener">05:46</a> handles discovery, validation, and execution in a uniform way.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=351s" target="_blank" rel="noopener">05:51</a> That&#39;s what makes MCP powerful.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=354s" target="_blank" rel="noopener">05:54</a> It lets you expose your system to any compliant model</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=357s" target="_blank" rel="noopener">05:57</a> without custom integrations each time.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=360s" target="_blank" rel="noopener">06:00</a> Let&#39;s take a practical example.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=362s" target="_blank" rel="noopener">06:02</a> Say you&#39;re building a personal assistant agent that</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=364s" target="_blank" rel="noopener">06:04</a> can check your calendar, pull meeting notes,</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=367s" target="_blank" rel="noopener">06:07</a> and draft follow up emails.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=369s" target="_blank" rel="noopener">06:09</a> In the old world, you would integrate with Google Calendar,</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=373s" target="_blank" rel="noopener">06:13</a> notion, and Gmail APIs.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=375s" target="_blank" rel="noopener">06:15</a> You&#39;d write code for each service,</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=377s" target="_blank" rel="noopener">06:17</a> handle authentication, rate limits,</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=379s" target="_blank" rel="noopener">06:19</a> and all of the weird edge cases.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=381s" target="_blank" rel="noopener">06:21</a> Then you teach the model how to use</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=383s" target="_blank" rel="noopener">06:23</a> those endpoints through really long, fragile system</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=387s" target="_blank" rel="noopener">06:27</a> prompts with MCP.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=389s" target="_blank" rel="noopener">06:29</a> You build or install servers for each of those systems</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=392s" target="_blank" rel="noopener">06:32</a> a calendar server, a node server, an email server.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=396s" target="_blank" rel="noopener">06:36</a> Each one advertises what it can do.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=399s" target="_blank" rel="noopener">06:39</a> The model automatically sees the available tools</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=402s" target="_blank" rel="noopener">06:42</a> like list events, get meeting summary, or send email.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=405s" target="_blank" rel="noopener">06:45</a> It can reason about what to use, in what order and what data</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=410s" target="_blank" rel="noopener">06:50</a> to pass between them.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=411s" target="_blank" rel="noopener">06:51</a> The key difference is that the developer</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=413s" target="_blank" rel="noopener">06:53</a> doesn&#39;t have to write glue code for each new tool.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=417s" target="_blank" rel="noopener">06:57</a> The model knows how to interact because the protocol is</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=420s" target="_blank" rel="noopener">07:00</a> consistent.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=421s" target="_blank" rel="noopener">07:01</a> That&#39;s the kind of simplicity that MCP</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=423s" target="_blank" rel="noopener">07:03</a> brings to AI development.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=425s" target="_blank" rel="noopener">07:05</a> So this shift is already underway,</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=427s" target="_blank" rel="noopener">07:07</a> the same way that HTTP unified the web.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=430s" target="_blank" rel="noopener">07:10</a> MCP is already beginning to unify how models talk to tools.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=435s" target="_blank" rel="noopener">07:15</a> And that&#39;s why learning it now matters.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=437s" target="_blank" rel="noopener">07:17</a> Because soon every serious AI developer</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=440s" target="_blank" rel="noopener">07:20</a> will need to know how to make their systems MCP aware.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=444s" target="_blank" rel="noopener">07:24</a> For a full list of Google Cloud related MCP servers,</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=447s" target="_blank" rel="noopener">07:27</a> check out the description box below, as well as a blog post</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=450s" target="_blank" rel="noopener">07:30</a> regarding how MCP servers work.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=453s" target="_blank" rel="noopener">07:33</a> I hope this video was helpful.</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=454s" target="_blank" rel="noopener">07:34</a> If you want to Continue Watching and learning about MCP and APIs,</li>
+<li><a href="https://www.youtube.com/watch?v=cGuyrANVi4A&amp;t=459s" target="_blank" rel="noopener">07:39</a> check out the next video called MCP versus API.</li>
+</ul></section>
+</article>
+<footer class="attribution">Captured with <a href="https://github.com/vkotian-King/100DaysofCodeHereVineet" target="_blank" rel="noopener">YouTube Transcript Vault</a> — a free, local-first way to build your own learning journal.</footer>
+</body>
+</html>
