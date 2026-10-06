@@ -123,8 +123,13 @@ async function captureCurrentFrame() {
   if (!frame || !frame.ok) throw new Error((frame && frame.reason) || 'unknown_error');
 
   console.debug('[TranscriptVault] visual capture: frame geometry', frame);
-  console.debug('[TranscriptVault] visual capture: calling captureVisibleTab');
-  const dataUrl = await chrome.tabs.captureVisibleTab(tab.windowId, { format: 'png' });
+  console.debug('[TranscriptVault] visual capture: requesting screenshot from service worker');
+  const screenshot = await chrome.runtime.sendMessage({
+    type: 'capture-visible-tab',
+    windowId: tab.windowId,
+  });
+  if (!screenshot?.ok) throw new Error(screenshot?.error || 'capture_failed');
+  const dataUrl = screenshot.dataUrl;
   console.debug('[TranscriptVault] visual capture: screenshot received', { length: dataUrl?.length });
 
   const image = new Image();
