@@ -30,6 +30,7 @@ const FAILURE_MESSAGES = {
   no_player_response: 'Could not read this page. Make sure a YouTube video is loaded and try again.',
   unavailable: 'This video is unavailable (private, age-restricted, or removed) — no transcript can be captured.',
   no_captions: 'This video has no captions available.',
+  transcript_required: 'Capture the transcript for this video first.',
   fetch_failed: 'Could not download the caption track. Try again.',
   unknown_error: 'Something went wrong reading this video. Try again.',
   not_youtube: 'Open a YouTube video tab first, then capture.',
@@ -50,6 +51,7 @@ async function refreshVaultUi() {
     regrantBtn.hidden = true;
     captureSection.hidden = true;
     publishSection.hidden = true;
+    visualCaptureArea.hidden = true;
     return;
   }
 
@@ -60,6 +62,7 @@ async function refreshVaultUi() {
     regrantBtn.hidden = true;
     captureSection.hidden = false;
     publishSection.hidden = false;
+    visualCaptureArea.hidden = false;
     await refreshTopicList();
     await refreshPublishPanel(vaultRootHandle);
   } else {
@@ -174,6 +177,7 @@ visualCaptureBtn.addEventListener('click', async () => {
   visualCaptureStatus.textContent = 'Capturing…';
   try {
     const { currentTime, blob } = await captureCurrentFrame();
+    if (!lastCapture) throw new Error('transcript_required');
     const index = (lastCapture.visuals || []).length + 1;
     lastCapture.visuals.push({
       startSeconds: currentTime,
@@ -238,11 +242,11 @@ captureBtn.addEventListener('click', async () => {
     const chapterNote = lastCapture.chapters.length > 0 ? `, ${lastCapture.chapters.length} chapters` : '';
     previewMetaEl.textContent = `${lastCapture.channel} — ${cues.length} caption lines${chapterNote}`;
     previewArea.hidden = false;
-    visualCaptureArea.hidden = false;
+    visualCaptureBtn.disabled = false;
+    saveBtn.disabled = false;
     visualCaptureStatus.textContent = 'Pause at an important diagram, slide, or drawing, then capture it.';
     renderVisualList();
-    topicInput.value = '';
-    topicInput.focus();
+    if (!topicInput.value.trim()) topicInput.focus();
   } catch (err) {
     console.error('[TranscriptVault] captureBtn handler threw:', err);
     captureStatusEl.textContent = FAILURE_MESSAGES.unknown_error;
@@ -276,6 +280,9 @@ saveBtn.addEventListener('click', async () => {
 
     showToast(`Saved to ${topic}/${filename}${lastCapture.visuals.length ? ` with ${lastCapture.visuals.length} visual moment(s)` : ''}`);
     previewArea.hidden = true;
+    visualCaptureBtn.disabled = true;
+    saveBtn.disabled = true;
+    visualCaptureStatus.textContent = 'Capture a transcript first, then capture diagrams, slides, or drawings while watching.';
     lastCapture = null;
     await refreshTopicList();
     await refreshPublishPanel(vaultRootHandle);
