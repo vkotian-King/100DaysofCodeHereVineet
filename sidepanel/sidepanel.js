@@ -1,6 +1,6 @@
 import { getVaultHandle, setVaultHandle } from '../lib/vaultStorage.js';
-import { listTopicFolders, ensureTopicFolder, fileExists, writeMarkdownFile } from '../lib/fsOps.js';
-import { buildMarkdown } from '../lib/transcriptFormatter.js';
+import { listTopicFolders, ensureTopicFolder, fileExists, writeMarkdownFile, writeBinaryFile } from '../lib/fsOps.js';
+import { buildMarkdown, formatTimestamp } from '../lib/transcriptFormatter.js';
 import { sanitizeFilename } from '../lib/filenameSanitizer.js';
 import { refreshPublishPanel } from './publishPanel.js';
 
@@ -17,10 +17,14 @@ const previewMetaEl = document.getElementById('previewMeta');
 const topicInput = document.getElementById('topicInput');
 const topicOptions = document.getElementById('topicOptions');
 const saveBtn = document.getElementById('saveBtn');
+const visualCaptureArea = document.getElementById('visualCaptureArea');
+const visualCaptureBtn = document.getElementById('captureVisualBtn');
+const visualCaptureStatus = document.getElementById('visualCaptureStatus');
+const visualList = document.getElementById('visualList');
 const toastEl = document.getElementById('toast');
 
 let vaultRootHandle = null;
-let lastCapture = null; // { title, channel, videoId, url, captureDate, cues }
+let lastCapture = null; // { title, channel, videoId, url, captureDate, cues, visuals }
 
 const FAILURE_MESSAGES = {
   no_player_response: 'Could not read this page. Make sure a YouTube video is loaded and try again.',
@@ -101,6 +105,77 @@ regrantBtn.addEventListener('click', async () => {
   }
 });
 
+async function captureCurrentFrame() {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (!tab || !tab.url || !/^https:\/\/www\\.youtube\\.com\\/watch/.test(tab.url)) {
+    throw new Error('not_youtube');
+  }
+
+  const results = await chrome.scripting.executeScript({
+    target: { tabId: tab.id },
+    world: 'MAIN',
+    files: ['content/extractVisualFrame.js'],
+  });
+  const frame = results && results[0] && results[0].result;
+  if (!frame || !frame.ok) throw new Error((frame && frame.reason) || 'unknown_error');
+
+  const dataUrl = await chrome.tabs.captureVisibleTab(tab.windowId, { format: 'png' });
+
+  const image = new Image();
+  await new Promise((resolve, reject) => {
+    image.onload = resolve;
+    image.onerror = reject;
+    image.src = dataUrl;
+  });
+
+  const scaleX = image.naturalWidth / frame.viewport.width;
+  const scaleY = image.naturalHeight / frame.viewport.height;
+  const x = Math.max(0, Math.round(frame.rect.x * scaleX));
+  const y = Math.max(0, Math.round(frame.rect.y * scaleY));
+  const width = Math.min(image.naturalWidth - x, Math.round(frame.rect.width * scaleX));
+  const height = Math.min(image.naturalHeight - y, Math.round(frame.rect.height * scaleY));
+  if (width <= 0 || height <= 0) throw new Error('invalid_crop');
+
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  canvas.getContext('2d').drawImage(image, x, y, width, height, 0, 0, width, height);
+
+  return { currentTime: frame.currentTime, blob: await new Promise(resolve => canvas.toBlob(resolve, 'image/png')) };
+}
+
+function visualFilename(seconds, index) {
+  const stamp = formatTimestamp(seconds).replace(/:/g, '-');
+  return `visual-${stamp}-${String(index).padStart(2, '0')}.png`;
+}
+
+function renderVisualList() {
+  visualList.innerHTML = '';
+  for (const visual of (lastCapture.visuals || [])) {
+    const row = document.createElement('div');
+    row.className = 'visual-row';
+    row.textContent = `${formatTimestamp(visual.startSeconds)} — ${visual.filename}`;
+    visualList.appendChild(row);
+  }
+}
+
+visualCaptureBtn.addEventListener('click', async () => {
+  visualCaptureStatus.textContent = 'Capturing…';
+  try {
+    const { currentTime, blob } = await captureCurrentFrame();
+    const index = (lastCapture.visuals || []).length + 1;
+    lastCapture.visuals.push({
+      startSeconds: currentTime,
+      filename: visualFilename(currentTime, index),
+      blob,
+    });
+    renderVisualList();
+    visualCaptureStatus.textContent = `Captured at ${formatTimestamp(currentTime)}.`;
+  } catch (err) {
+    visualCaptureStatus.textContent = FAILURE_MESSAGES[err.message] || 'Could not capture the current video frame.';
+  }
+});
+
 captureBtn.addEventListener('click', async () => {
   previewArea.hidden = true;
   lastCapture = null;
@@ -143,6 +218,7 @@ captureBtn.addEventListener('click', async () => {
       cues,
       description: result.description || '',
       chapters: result.chapters || [],
+      visuals: [],
     };
 
     captureStatusEl.textContent = '';
@@ -150,6 +226,9 @@ captureBtn.addEventListener('click', async () => {
     const chapterNote = lastCapture.chapters.length > 0 ? `, ${lastCapture.chapters.length} chapters` : '';
     previewMetaEl.textContent = `${lastCapture.channel} — ${cues.length} caption lines${chapterNote}`;
     previewArea.hidden = false;
+    visualCaptureArea.hidden = false;
+    visualCaptureStatus.textContent = 'Pause at an important diagram, slide, or drawing, then capture it.';
+    renderVisualList();
     topicInput.value = '';
     topicInput.focus();
   } catch (err) {
@@ -176,10 +255,14 @@ saveBtn.addEventListener('click', async () => {
       if (!overwrite) return;
     }
 
+    for (const visual of lastCapture.visuals || []) {
+      await writeBinaryFile(topicHandle, visual.filename, visual.blob);
+    }
+
     const markdown = buildMarkdown({ ...lastCapture, topic });
     await writeMarkdownFile(topicHandle, filename, markdown);
 
-    showToast(`Saved to ${topic}/${filename}`);
+    showToast(`Saved to ${topic}/${filename}${lastCapture.visuals.length ? ` with ${lastCapture.visuals.length} visual moment(s)` : ''}`);
     previewArea.hidden = true;
     lastCapture = null;
     await refreshTopicList();
