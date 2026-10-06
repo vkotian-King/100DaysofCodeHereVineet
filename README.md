@@ -45,6 +45,21 @@ Chapters and Description are only included when present — a video with no crea
 
 Any further structure — a summary, key insights, tools mentioned — is deliberately *not* generated at capture time. Add it yourself later if and when a video is worth revisiting, or layer an on-demand analysis step on top of the captured transcript when you actually want one; nothing is forced into every file up front. `lib/vaultNoteParser.js` already understands notes that have gained extra `##` sections this way, so nothing about the format needs to change if you add them by hand.
 
+## Capturing visual moments
+
+After capturing a transcript, the preview includes **📸 Capture Current Frame**. Pause the YouTube video at an important diagram, slide, or drawing and capture it. You can capture multiple moments from the same video before saving.
+
+Each visual is stored as a PNG beside the Markdown note and referenced from a **Visual Moments** section with a timestamp link back to YouTube:
+
+```
+Topic/
+  Video Title.md
+  visual-03-39-01.png
+  visual-06-42-02.png
+```
+
+V1 captures the visible YouTube player by taking a screenshot of the tab and cropping it to the video element. It does not attempt to access the underlying YouTube media stream.
+
 ## Install (unpacked — this isn't on the Chrome Web Store)
 
 1. Clone or download this repository.
