@@ -3,8 +3,16 @@
   "name": "YouTube Transcript Vault",
   "version": "0.1.0",
   "description": "Capture a YouTube video's transcript into a Markdown note in a local topic folder. No AI, no server.",
-  "permissions": ["sidePanel", "scripting", "storage"],
-  "host_permissions": ["https://www.youtube.com/*", "https://api.github.com/*"],
+  "permissions": [
+    "sidePanel",
+    "scripting",
+    "storage",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "https://www.youtube.com/*",
+    "https://api.github.com/*"
+  ],
   "background": {
     "service_worker": "background/service-worker.js"
   },
