@@ -107,7 +107,7 @@ regrantBtn.addEventListener('click', async () => {
 
 async function captureCurrentFrame() {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  if (!tab || !tab.url || !/^https:\/\/www\\.youtube\\.com\\/watch/.test(tab.url)) {
+  if (!tab || !tab.url || !/^https:\/\/www\.youtube\.com\/watch/.test(tab.url)) {
     throw new Error('not_youtube');
   }
 
