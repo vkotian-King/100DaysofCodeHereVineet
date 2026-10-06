@@ -111,3 +111,26 @@ test('buildMarkdown: wraps Description in a fenced code block, before Transcript
   assert.match(md, /## Description\n\n```\nCheck out the repo:\nhttps:\/\/example\.com\/repo\n```\n/);
   assert.ok(md.indexOf('## Description') < md.indexOf('## Transcript'));
 });
+
+
+test('buildMarkdown: includes Visual Moments with timestamp links and image references', () => {
+  const md = buildMarkdown({
+    title: 'Visual Lesson',
+    channel: 'Channel',
+    url: 'https://www.youtube.com/watch?v=xyz',
+    videoId: 'xyz',
+    captureDate: '2026-08-14T00:00:00.000Z',
+    topic: 'Misc',
+    cues: [],
+    visuals: [
+      { startSeconds: 219, filename: 'visual-03-39-01.png' },
+      { startSeconds: 402, filename: 'visual-06-42-02.png' },
+    ],
+  });
+
+  assert.match(md, /## Visual Moments/);
+  assert.match(md, /### \[03:39\]\(https:\/\/www\.youtube\.com\/watch\?v=xyz&t=219s\)/);
+  assert.match(md, /!\[Visual capture at 03:39\]\(visual-03-39-01\.png\)/);
+  assert.match(md, /### \[06:42\]\(https:\/\/www\.youtube\.com\/watch\?v=xyz&t=402s\)/);
+  assert.ok(md.indexOf('## Visual Moments') < md.indexOf('## Transcript'));
+});
