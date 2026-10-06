@@ -21,20 +21,20 @@
     <div id="previewArea" hidden>
       <div id="previewTitle"></div>
       <div id="previewMeta"></div>
-
-      <div id="visualCaptureArea" hidden>
-        <strong>Visual Moment</strong>
-        <div id="visualCaptureStatus"></div>
-        <button id="captureVisualBtn" type="button">📸 Capture Current Frame</button>
-        <div id="visualList"></div>
-      </div>
-
-      <label for="topicInput">Topic folder</label>
-      <input id="topicInput" list="topicOptions" placeholder="Existing topic or new topic name" autocomplete="off" />
-      <datalist id="topicOptions"></datalist>
-
-      <button id="saveBtn">Save to Vault</button>
     </div>
+
+    <div id="visualCaptureArea">
+      <strong>Visual Moment</strong>
+      <div id="visualCaptureStatus">Capture a transcript first, then capture diagrams, slides, or drawings while watching.</div>
+      <button id="captureVisualBtn" type="button" disabled>📸 Capture Current Frame</button>
+      <div id="visualList"></div>
+    </div>
+
+    <label for="topicInput">Topic folder</label>
+    <input id="topicInput" list="topicOptions" placeholder="Existing topic or new topic name" autocomplete="off" />
+    <datalist id="topicOptions"></datalist>
+
+    <button id="saveBtn" disabled>Save to Vault</button>
   </section>
 
   <section id="publishSection" hidden>
