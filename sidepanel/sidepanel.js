@@ -106,20 +106,26 @@ regrantBtn.addEventListener('click', async () => {
 });
 
 async function captureCurrentFrame() {
+  console.debug('[TranscriptVault] visual capture: start');
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!tab || !tab.url || !/^https:\/\/www\.youtube\.com\/watch/.test(tab.url)) {
     throw new Error('not_youtube');
   }
 
+  console.debug('[TranscriptVault] visual capture: tab', { id: tab.id, url: tab.url, windowId: tab.windowId });
   const results = await chrome.scripting.executeScript({
     target: { tabId: tab.id },
     world: 'MAIN',
     files: ['content/extractVisualFrame.js'],
   });
+  console.debug('[TranscriptVault] visual capture: frame script result', results);
   const frame = results && results[0] && results[0].result;
   if (!frame || !frame.ok) throw new Error((frame && frame.reason) || 'unknown_error');
 
+  console.debug('[TranscriptVault] visual capture: frame geometry', frame);
+  console.debug('[TranscriptVault] visual capture: calling captureVisibleTab');
   const dataUrl = await chrome.tabs.captureVisibleTab(tab.windowId, { format: 'png' });
+  console.debug('[TranscriptVault] visual capture: screenshot received', { length: dataUrl?.length });
 
   const image = new Image();
   await new Promise((resolve, reject) => {
@@ -172,6 +178,7 @@ visualCaptureBtn.addEventListener('click', async () => {
     renderVisualList();
     visualCaptureStatus.textContent = `Captured at ${formatTimestamp(currentTime)}.`;
   } catch (err) {
+    console.error('[TranscriptVault] visual capture failed:', err);
     visualCaptureStatus.textContent = FAILURE_MESSAGES[err.message] || 'Could not capture the current video frame.';
   }
 });
