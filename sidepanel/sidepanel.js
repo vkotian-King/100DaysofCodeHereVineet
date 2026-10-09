@@ -349,7 +349,7 @@ captureBtn.addEventListener('click', async () => {
     if (await fileExists(topicHandle, filename)) throw new Error('note_exists_without_video_id');
     await writeMarkdownFile(topicHandle, filename, buildMarkdown({ ...lastCapture, topic: chosenTopic }));
     currentNote = { topic: chosenTopic, filename, videoId: lastCapture.videoId };
-    topicInput.disabled = true;
+    topicInput.disabled = false;
     captureStatusEl.textContent = 'Transcript saved automatically.';
     previewTitleEl.textContent = lastCapture.title;
     const chapterNote = lastCapture.chapters.length > 0 ? `, ${lastCapture.chapters.length} chapters` : '';
