@@ -1,5 +1,5 @@
 import { getVaultHandle, setVaultHandle } from '../lib/vaultStorage.js';
-import { listTopicFolders, ensureTopicFolder, fileExists, writeMarkdownFile, writeBinaryFile } from '../lib/fsOps.js';
+import { listTopicFolders, ensureTopicFolder, fileExists, writeMarkdownFile, writeBinaryFile, findNoteByVideoId, readTextFile } from '../lib/fsOps.js';
 import { buildMarkdown, formatTimestamp } from '../lib/transcriptFormatter.js';
 import { sanitizeFilename } from '../lib/filenameSanitizer.js';
 import { refreshPublishPanel } from './publishPanel.js';
@@ -16,7 +16,6 @@ const previewTitleEl = document.getElementById('previewTitle');
 const previewMetaEl = document.getElementById('previewMeta');
 const topicInput = document.getElementById('topicInput');
 const topicOptions = document.getElementById('topicOptions');
-const saveBtn = document.getElementById('saveBtn');
 const visualCaptureArea = document.getElementById('visualCaptureArea');
 const visualCaptureBtn = document.getElementById('captureVisualBtn');
 const visualCaptureStatus = document.getElementById('visualCaptureStatus');
@@ -24,7 +23,9 @@ const visualList = document.getElementById('visualList');
 const toastEl = document.getElementById('toast');
 
 let vaultRootHandle = null;
-let lastCapture = null; // { title, channel, videoId, url, captureDate, cues, visuals }
+let lastCapture = null;
+let currentNote = null;
+const LAST_TOPIC_KEY = 'transcriptVaultLastTopic';
 
 const FAILURE_MESSAGES = {
   no_player_response: 'Could not read this page. Make sure a YouTube video is loaded and try again.',
@@ -33,6 +34,7 @@ const FAILURE_MESSAGES = {
   transcript_required: 'Capture the transcript for this video first.',
   fetch_failed: 'Could not download the caption track. Try again.',
   unknown_error: 'Something went wrong reading this video. Try again.',
+  note_exists_without_video_id: 'A note with this title already exists but is not linked to this video. Please resolve the existing note before retrying.',
   not_youtube: 'Open a YouTube video tab first, then capture.',
 };
 
@@ -64,6 +66,8 @@ async function refreshVaultUi() {
     publishSection.hidden = false;
     visualCaptureArea.hidden = false;
     await refreshTopicList();
+    const saved = await chrome.storage.local.get(LAST_TOPIC_KEY);
+    if (saved[LAST_TOPIC_KEY]) topicInput.value = saved[LAST_TOPIC_KEY];
     await refreshPublishPanel(vaultRootHandle);
   } else {
     vaultStatusEl.textContent = `Vault "${vaultRootHandle.name}" needs access to be re-confirmed.`;
@@ -83,6 +87,11 @@ async function refreshTopicList() {
     topicOptions.appendChild(opt);
   }
 }
+
+topicInput.addEventListener('change', async () => {
+  const topic = topicInput.value.trim();
+  if (topic) await chrome.storage.local.set({ [LAST_TOPIC_KEY]: topic });
+});
 
 selectVaultBtn.addEventListener('click', async () => {
   try {
@@ -165,7 +174,7 @@ function visualFilename(seconds, index) {
 
 function renderVisualList() {
   visualList.innerHTML = '';
-  for (const visual of (lastCapture.visuals || [])) {
+  for (const visual of (lastCapture?.visuals || [])) {
     const row = document.createElement('div');
     row.className = 'visual-row';
     row.textContent = `${formatTimestamp(visual.startSeconds)} — ${visual.filename}`;
@@ -177,15 +186,23 @@ visualCaptureBtn.addEventListener('click', async () => {
   visualCaptureStatus.textContent = 'Capturing…';
   try {
     const { currentTime, blob } = await captureCurrentFrame();
-    if (!lastCapture) throw new Error('transcript_required');
+    if (!lastCapture || !currentNote) throw new Error('transcript_required');
     const index = (lastCapture.visuals || []).length + 1;
-    lastCapture.visuals.push({
-      startSeconds: currentTime,
-      filename: visualFilename(currentTime, index),
-      blob,
-    });
+    const filename = visualFilename(currentTime, index);
+    const topicHandle = await ensureTopicFolder(vaultRootHandle, currentNote.topic);
+    await writeBinaryFile(topicHandle, filename, blob);
+    lastCapture.visuals.push({ startSeconds: currentTime, filename });
+    const existingMarkdown = await readTextFile(topicHandle, currentNote.filename);
+    const visualsMarkdown = buildVisualsSection(lastCapture.visuals, lastCapture.videoId);
+    let updatedMarkdown;
+    if (existingMarkdown.includes('## Visual Moments')) {
+      updatedMarkdown = existingMarkdown.replace(/## Visual Moments\n[\s\S]*?(?=\n## |$)/, visualsMarkdown.trimEnd() + '\n');
+    } else {
+      updatedMarkdown = existingMarkdown.replace(/## Transcript\n/, visualsMarkdown + '\n## Transcript\n');
+    }
+    await writeMarkdownFile(topicHandle, currentNote.filename, updatedMarkdown);
     renderVisualList();
-    visualCaptureStatus.textContent = `Captured at ${formatTimestamp(currentTime)}.`;
+    visualCaptureStatus.textContent = `Saved visual at ${formatTimestamp(currentTime)}.`;
   } catch (err) {
     console.error('[TranscriptVault] visual capture failed:', err);
     visualCaptureStatus.textContent = FAILURE_MESSAGES[err.message] || 'Could not capture the current video frame.';
@@ -193,9 +210,7 @@ visualCaptureBtn.addEventListener('click', async () => {
 });
 
 captureBtn.addEventListener('click', async () => {
-  previewArea.hidden = true;
-  lastCapture = null;
-  captureStatusEl.textContent = 'Capturing…';
+  captureStatusEl.textContent = 'Checking for an existing note…';
 
   try {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -204,6 +219,37 @@ captureBtn.addEventListener('click', async () => {
       return;
     }
 
+    const videoId = new URL(tab.url).searchParams.get('v');
+    const existing = await findNoteByVideoId(vaultRootHandle, videoId);
+    if (existing) {
+      const titleMatch = existing.content.match(/^title: \"((?:\\\\.|[^\"])*)\"/m);
+      currentNote = { topic: existing.topic, filename: existing.filename, videoId };
+      lastCapture = {
+        videoId,
+        title: titleMatch ? titleMatch[1].replace(/\\\\([\"\\\\])/g, '$1') : existing.filename.replace(/\\.md$/, ''),
+        visuals: [...existing.content.matchAll(/### \\[([^\\]]+)\\]\\(https:\\/\\/www\\.youtube\\.com\\/watch\\?v=[^&]+&t=(\\d+)s\\)\\s*!\\[Visual capture at [^\\]]+\\]\\(([^)]+)\\)/g)].map(m => ({ startSeconds: Number(m[2]), filename: m[3] })),
+      };
+      topicInput.value = existing.topic;
+      topicInput.disabled = true;
+      previewTitleEl.textContent = lastCapture.title;
+      previewMetaEl.textContent = 'Existing note found — resuming your previous session.';
+      previewArea.hidden = false;
+      visualCaptureBtn.disabled = false;
+      visualCaptureStatus.textContent = 'Resumed. New visual moments are saved automatically.';
+      renderVisualList();
+      captureStatusEl.textContent = 'Resumed existing note; transcript was not recaptured.';
+      return;
+    }
+    currentNote = null;
+    lastCapture = null;
+    const chosenTopic = topicInput.value.trim();
+    if (!chosenTopic) {
+      captureStatusEl.textContent = 'Choose a topic folder first.';
+      topicInput.focus();
+      return;
+    }
+    await chrome.storage.local.set({ [LAST_TOPIC_KEY]: chosenTopic });
+    topicInput.disabled = false;
     const results = await chrome.scripting.executeScript({
       target: { tabId: tab.id },
       world: 'MAIN',
@@ -237,57 +283,24 @@ captureBtn.addEventListener('click', async () => {
       visuals: [],
     };
 
-    captureStatusEl.textContent = '';
+    const topicHandle = await ensureTopicFolder(vaultRootHandle, chosenTopic);
+    const filename = sanitizeFilename(lastCapture.title);
+    if (await fileExists(topicHandle, filename)) throw new Error('note_exists_without_video_id');
+    await writeMarkdownFile(topicHandle, filename, buildMarkdown({ ...lastCapture, topic: chosenTopic }));
+    currentNote = { topic: chosenTopic, filename, videoId: lastCapture.videoId };
+    topicInput.disabled = true;
+    captureStatusEl.textContent = 'Transcript saved automatically.';
     previewTitleEl.textContent = lastCapture.title;
     const chapterNote = lastCapture.chapters.length > 0 ? `, ${lastCapture.chapters.length} chapters` : '';
     previewMetaEl.textContent = `${lastCapture.channel} — ${cues.length} caption lines${chapterNote}`;
     previewArea.hidden = false;
     visualCaptureBtn.disabled = false;
-    saveBtn.disabled = false;
-    visualCaptureStatus.textContent = 'Pause at an important diagram, slide, or drawing, then capture it.';
+    visualCaptureStatus.textContent = 'Pause at an important diagram, slide, or drawing. Each capture saves automatically.';
     renderVisualList();
     if (!topicInput.value.trim()) topicInput.focus();
   } catch (err) {
     console.error('[TranscriptVault] captureBtn handler threw:', err);
     captureStatusEl.textContent = FAILURE_MESSAGES.unknown_error;
-  }
-});
-
-saveBtn.addEventListener('click', async () => {
-  if (!lastCapture) return;
-
-  const topic = topicInput.value.trim();
-  if (!topic) {
-    showToast('Enter or pick a topic folder first.', true);
-    return;
-  }
-
-  try {
-    const topicHandle = await ensureTopicFolder(vaultRootHandle, topic);
-    const filename = sanitizeFilename(lastCapture.title);
-
-    if (await fileExists(topicHandle, filename)) {
-      const overwrite = window.confirm(`"${filename}" already exists in "${topic}". Overwrite it?`);
-      if (!overwrite) return;
-    }
-
-    for (const visual of lastCapture.visuals || []) {
-      await writeBinaryFile(topicHandle, visual.filename, visual.blob);
-    }
-
-    const markdown = buildMarkdown({ ...lastCapture, topic });
-    await writeMarkdownFile(topicHandle, filename, markdown);
-
-    showToast(`Saved to ${topic}/${filename}${lastCapture.visuals.length ? ` with ${lastCapture.visuals.length} visual moment(s)` : ''}`);
-    previewArea.hidden = true;
-    visualCaptureBtn.disabled = true;
-    saveBtn.disabled = true;
-    visualCaptureStatus.textContent = 'Capture a transcript first, then capture diagrams, slides, or drawings while watching.';
-    lastCapture = null;
-    await refreshTopicList();
-    await refreshPublishPanel(vaultRootHandle);
-  } catch (_err) {
-    showToast('Could not save the file.', true);
   }
 });
 
