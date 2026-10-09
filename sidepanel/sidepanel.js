@@ -99,6 +99,7 @@ selectVaultBtn.addEventListener('click', async () => {
     await setVaultHandle(handle);
     vaultRootHandle = handle;
     await refreshVaultUi();
+    await resumeExistingNoteForActiveTab();
   } catch (err) {
     if (err && err.name !== 'AbortError') showToast('Could not select a folder.', true);
   }
@@ -109,6 +110,7 @@ regrantBtn.addEventListener('click', async () => {
     const result = await vaultRootHandle.requestPermission({ mode: 'readwrite' });
     if (result === 'granted') {
       await refreshVaultUi();
+      await resumeExistingNoteForActiveTab();
     } else {
       showToast('Access was not granted.', true);
     }
