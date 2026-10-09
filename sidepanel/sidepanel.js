@@ -1,5 +1,5 @@
 import { getVaultHandle, setVaultHandle } from '../lib/vaultStorage.js';
-import { listTopicFolders, ensureTopicFolder, fileExists, writeMarkdownFile, writeBinaryFile, findNoteByVideoId, readTextFile } from '../lib/fsOps.js';
+import { listTopicFolders, ensureTopicFolder, fileExists, writeMarkdownFile, writeBinaryFile, readBinaryFile, deleteFile, findNoteByVideoId, readTextFile } from '../lib/fsOps.js';
 import { buildMarkdown, buildVisualsSection, formatTimestamp } from '../lib/transcriptFormatter.js';
 import { sanitizeFilename } from '../lib/filenameSanitizer.js';
 import { refreshPublishPanel } from './publishPanel.js';
@@ -89,8 +89,40 @@ async function refreshTopicList() {
 }
 
 topicInput.addEventListener('change', async () => {
-  const topic = topicInput.value.trim();
-  if (topic) await chrome.storage.local.set({ [LAST_TOPIC_KEY]: topic });
+  const newTopic = topicInput.value.trim();
+  if (!newTopic) return;
+  await chrome.storage.local.set({ [LAST_TOPIC_KEY]: newTopic });
+  if (!currentNote || newTopic === currentNote.topic) return;
+
+  try {
+    const oldTopic = currentNote.topic;
+    const oldDir = await ensureTopicFolder(vaultRootHandle, oldTopic);
+    const newDir = await ensureTopicFolder(vaultRootHandle, newTopic);
+    if (await fileExists(newDir, currentNote.filename)) {
+      topicInput.value = oldTopic;
+      showToast('A note with that filename already exists in the destination topic. Nothing was moved.', true);
+      return;
+    }
+
+    const markdown = await readTextFile(oldDir, currentNote.filename);
+    const visualFiles = [...(lastCapture?.visuals || [])].map(v => v.filename);
+    const imageBlobs = [];
+    for (const filename of visualFiles) {
+      if (await fileExists(oldDir, filename)) imageBlobs.push({ filename, blob: await readBinaryFile(oldDir, filename) });
+    }
+
+    for (const item of imageBlobs) await writeBinaryFile(newDir, item.filename, item.blob);
+    await writeMarkdownFile(newDir, currentNote.filename, markdown.replace(/^topic:.*$/m, `topic: ${newTopic}`));
+    await deleteFile(oldDir, currentNote.filename);
+    for (const item of imageBlobs) await deleteFile(oldDir, item.filename);
+
+    currentNote.topic = newTopic;
+    showToast(`Moved learning note to ${newTopic}.`);
+    await refreshTopicList();
+  } catch (err) {
+    console.error('[TranscriptVault] topic move failed:', err);
+    showToast('Could not move the note to that topic. Check the vault folder and try again.', true);
+  }
 });
 
 selectVaultBtn.addEventListener('click', async () => {
@@ -191,7 +223,7 @@ async function resumeExistingNoteForActiveTab() {
         visuals: [...existing.content.matchAll(/### \[([^\]]+)\]\(https:\/\/www\.youtube\.com\/watch\?v=[^&]+&t=(\d+)s\)\s*!\[Visual capture at [^\]]+\]\(([^)]+)\)/g)].map(m => ({ startSeconds: Number(m[2]), filename: m[3] })),
   };
   topicInput.value = existing.topic;
-  topicInput.disabled = true;
+  topicInput.disabled = false;
   previewTitleEl.textContent = lastCapture.title;
   previewMetaEl.textContent = 'Existing note found — resumed automatically.';
   previewArea.hidden = false;
@@ -259,7 +291,7 @@ captureBtn.addEventListener('click', async () => {
         visuals: [...existing.content.matchAll(/### \[([^\]]+)\]\(https:\/\/www\.youtube\.com\/watch\?v=[^&]+&t=(\d+)s\)\s*!\[Visual capture at [^\]]+\]\(([^)]+)\)/g)].map(m => ({ startSeconds: Number(m[2]), filename: m[3] })),
       };
       topicInput.value = existing.topic;
-      topicInput.disabled = true;
+      topicInput.disabled = false;
       previewTitleEl.textContent = lastCapture.title;
       previewMetaEl.textContent = 'Existing note found — resuming your previous session.';
       previewArea.hidden = false;
