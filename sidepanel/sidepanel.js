@@ -186,7 +186,7 @@ async function resumeExistingNoteForActiveTab() {
   lastCapture = {
     videoId,
     title: titleMatch ? titleMatch[1].replace(/\\\\(["\\\\])/g, '$1') : existing.filename.replace(/\.md$/, ''),
-    visuals: [...existing.content.matchAll(/### \[([^\]]+)\]\(https:\/\/www\.youtube\.com\/watch\?v=[^&]+&t=(\d+)s\)\s*!\[Visual capture at [^\]]+\]\(([^)]+)\)/g)].map(m => ({ startSeconds: Number(m[2]), filename: m[3] })),
+        visuals: [...existing.content.matchAll(/### \[([^\]]+)\]\(https:\/\/www\.youtube\.com\/watch\?v=[^&]+&t=(\d+)s\)\s*!\[Visual capture at [^\]]+\]\(([^)]+)\)/g)].map(m => ({ startSeconds: Number(m[2]), filename: m[3] })),
   };
   topicInput.value = existing.topic;
   topicInput.disabled = true;
@@ -254,7 +254,7 @@ captureBtn.addEventListener('click', async () => {
       lastCapture = {
         videoId,
         title: titleMatch ? titleMatch[1].replace(/\\\\([\"\\\\])/g, '$1') : existing.filename.replace(/\\.md$/, ''),
-        visuals: [...existing.content.matchAll(/### \\[([^\\]]+)\\]\\(https:\\/\\/www\\.youtube\\.com\\/watch\\?v=[^&]+&t=(\\d+)s\\)\\s*!\\[Visual capture at [^\\]]+\\]\\(([^)]+)\\)/g)].map(m => ({ startSeconds: Number(m[2]), filename: m[3] })),
+        visuals: [...existing.content.matchAll(/### \[([^\]]+)\]\(https:\/\/www\.youtube\.com\/watch\?v=[^&]+&t=(\d+)s\)\s*!\[Visual capture at [^\]]+\]\(([^)]+)\)/g)].map(m => ({ startSeconds: Number(m[2]), filename: m[3] })),
       };
       topicInput.value = existing.topic;
       topicInput.disabled = true;
@@ -327,7 +327,7 @@ captureBtn.addEventListener('click', async () => {
     if (!topicInput.value.trim()) topicInput.focus();
   } catch (err) {
     console.error('[TranscriptVault] captureBtn handler threw:', err);
-    captureStatusEl.textContent = FAILURE_MESSAGES.unknown_error;
+    captureStatusEl.textContent = FAILURE_MESSAGES[err.message] || FAILURE_MESSAGES.unknown_error;
   }
 });
 
