@@ -1,6 +1,6 @@
 import { getVaultHandle, setVaultHandle } from '../lib/vaultStorage.js';
 import { listTopicFolders, ensureTopicFolder, fileExists, writeMarkdownFile, writeBinaryFile, findNoteByVideoId, readTextFile } from '../lib/fsOps.js';
-import { buildMarkdown, formatTimestamp } from '../lib/transcriptFormatter.js';
+import { buildMarkdown, buildVisualsSection, formatTimestamp } from '../lib/transcriptFormatter.js';
 import { sanitizeFilename } from '../lib/filenameSanitizer.js';
 import { refreshPublishPanel } from './publishPanel.js';
 
@@ -172,6 +172,33 @@ function visualFilename(seconds, index) {
   return `visual-${stamp}-${String(index).padStart(2, '0')}.png`;
 }
 
+
+async function resumeExistingNoteForActiveTab() {
+  if (!vaultRootHandle || await vaultRootHandle.queryPermission({ mode: 'readwrite' }) !== 'granted') return;
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (!tab?.url || !/^https:\/\/www\.youtube\.com\/watch/.test(tab.url)) return;
+  const videoId = new URL(tab.url).searchParams.get('v');
+  if (!videoId) return;
+  const existing = await findNoteByVideoId(vaultRootHandle, videoId);
+  if (!existing) return;
+  const titleMatch = existing.content.match(/^title: "((?:\\\\.|[^"])*)"/m);
+  currentNote = { topic: existing.topic, filename: existing.filename, videoId };
+  lastCapture = {
+    videoId,
+    title: titleMatch ? titleMatch[1].replace(/\\\\(["\\\\])/g, '$1') : existing.filename.replace(/\.md$/, ''),
+    visuals: [...existing.content.matchAll(/### \[([^\]]+)\]\(https:\/\/www\.youtube\.com\/watch\?v=[^&]+&t=(\d+)s\)\s*!\[Visual capture at [^\]]+\]\(([^)]+)\)/g)].map(m => ({ startSeconds: Number(m[2]), filename: m[3] })),
+  };
+  topicInput.value = existing.topic;
+  topicInput.disabled = true;
+  previewTitleEl.textContent = lastCapture.title;
+  previewMetaEl.textContent = 'Existing note found — resumed automatically.';
+  previewArea.hidden = false;
+  visualCaptureBtn.disabled = false;
+  visualCaptureStatus.textContent = 'Resumed. New visual moments are saved automatically.';
+  captureStatusEl.textContent = 'Existing note resumed; no transcript recapture needed.';
+  renderVisualList();
+}
+
 function renderVisualList() {
   visualList.innerHTML = '';
   for (const visual of (lastCapture?.visuals || [])) {
@@ -307,4 +334,5 @@ captureBtn.addEventListener('click', async () => {
 (async function init() {
   vaultRootHandle = await getVaultHandle();
   await refreshVaultUi();
+  await resumeExistingNoteForActiveTab();
 })();
